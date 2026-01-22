@@ -1,0 +1,250 @@
+{
+  "x-axis": {
+    "critical": {
+      "critique": [
+        "critique",
+        "critiques",
+        "critiqued",
+        "critiquing"
+      ],
+      "critical": [
+        "critical",
+        "critically",
+        "criticality",
+        "criticize",
+        "criticizes",
+        "criticized",
+        "criticizing",
+        "criticise",
+        "criticises",
+        "criticised",
+        "criticising"
+      ],
+      "interrogate": [
+        "interrogate",
+        "interrogates",
+        "interrogated",
+        "interrogating",
+        "interrogation"
+      ],
+      "problematize": [
+        "problematize",
+        "problematizes",
+        "problematized",
+        "problematizing",
+        "problematization"
+      ],
+      "question": [
+        "question",
+        "questions",
+        "questioned",
+        "questioning"
+      ],
+      "reframe": [
+        "reframe",
+        "reframes",
+        "reframed",
+        "reframing",
+        "reframings"
+      ],
+      "reflect": [
+        "reflexive",
+        "reflexively",
+        "reflexivity",
+        "reflexiveness",
+        "reflect",
+        "reflects",
+        "reflected",
+        "reflecting",
+        "reflection"
+      ],
+      "position": [
+        "positionality",
+        "position",
+        "positions",
+        "positioned",
+        "positioning"
+      ],
+      "post-critical": [
+        "post-critical"
+      ]
+    }
+  },
+  "y-axis": {
+    "design": {
+      "analyze": [
+        "analyze",
+        "analyse",
+        "analyzes",
+        "analyses",
+        "analyzed",
+        "analysed",
+        "analyzing",
+        "analysing",
+        "analysis",
+        "analytical"
+      ],
+      "dialecticize": [
+        "dialectic",
+        "dialectical",
+        "dialectically",
+        "dialecticize",
+        "dialecticizes",
+        "dialecticized",
+        "dialecticizing"
+      ],
+      "discourse": [
+        "discourse",
+        "discourses",
+        "discursive",
+        "discursively",
+        "discoursed",
+        "discoursing"
+      ],
+      "evaluate": [
+        "evaluate",
+        "evaluates",
+        "evaluated",
+        "evaluating",
+        "evaluation",
+        "evaluative"
+      ],
+      "investigate": [
+        "investigate",
+        "investigates",
+        "investigated",
+        "investigating",
+        "investigation",
+        "investigative"
+      ],
+      "explore": [
+        "explore",
+        "explores",
+        "explored",
+        "exploring",
+        "exploration",
+        "explorative",
+        "exploratory"
+      ],
+      "iterate": [
+        "iterate",
+        "iterates",
+        "iterated",
+        "iterating",
+        "iteration",
+        "iterative"
+      ],
+      "systematize": [
+        "system",
+        "systems",
+        "systemic",
+        "systematically",
+        "systematize",
+        "systematizes",
+        "systematized",
+        "systematizing",
+        "systematise",
+        "systematises",
+        "systematised",
+        "systematising"
+      ],
+      "theorize": [
+        "theory",
+        "theories",
+        "theoretical",
+        "theoretically",
+        "theorize",
+        "theorizes",
+        "theorized",
+        "theorizing",
+        "theorise",
+        "theorises",
+        "theorised",
+        "theorising"
+      ],
+      "design": [
+        "design",
+        "designs",
+        "designed",
+        "designing",
+        "designer",
+        "designers"
+      ],
+      "applied art": [
+        "applied art",
+        "applied arts"
+      ],
+      "practice": [
+        "practice",
+        "practices",
+        "practiced",
+        "practised",
+        "practicing",
+        "practising",
+        "practitioner",
+        "practitioners"
+      ],
+      "craft": [
+        "craft",
+        "crafts",
+        "crafted",
+        "crafting",
+        "craftsmanship"
+      ],
+      "inquire": [
+        "inquiry",
+        "inquiries",
+        "inquire",
+        "inquires",
+        "inquired",
+        "inquiring",
+        "inquisitive"
+      ],
+      "conceptualize": [
+        "concept",
+        "concepts",
+        "conceptual",
+        "conceptualize",
+        "conceptualise",
+        "conceptualization"
+      ],
+      "intend": [
+        "intention",
+        "intentions",
+        "intentional",
+        "intentionally",
+        "intentionality",
+        "intend",
+        "intends",
+        "intended",
+        "intending"
+      ],
+      "plan": [
+        "plan",
+        "plans",
+        "planned",
+        "planning"
+      ],
+      "project": [
+        "project",
+        "projects",
+        "projected",
+        "projecting"
+      ],
+      "narrate": [
+        "narrative",
+        "narratives",
+        "narrate",
+        "narrated",
+        "narration"
+      ],
+      "work": [
+        "work",
+        "works",
+        "worked",
+        "working",
+        "workmanship"
+      ]
+    }
+  }
+}

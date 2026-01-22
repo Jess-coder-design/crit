@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CR!T - About</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <style>
+        body {
+            overflow: auto;
+        }
+
+        .about-container {
+            max-width: 50%;
+            margin: 0 auto;
+            padding: 80px 40px 40px 40px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .about-container h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .about-container h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .about-container p {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .about-container img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+        }
+
+        #about-logo {
+            position: fixed;
+            top: 20px;
+            left: 25px;
+            font-size: 21px;
+            font-weight: bold;
+            color: #333;
+            z-index: 100;
+            pointer-events: auto;
+            font-family: "PT Sans", sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        #about-logo:hover {
+            color: #FF6600;
+        }
+
+        .info-box {
+            border: 1.5px solid #666;
+            padding: 20px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            width: fit-content;
+        }
+    </style>
+</head>
+<body>
+    <a href="../index.html" id="about-logo">CR!T</a>
+    <div class="about-container">
+        <h2>Navigating critical design</h2>
+        <p>During my time at the Design Academy, I often heard the words "critical" and "design" used together, yet the actual meaning of their combination felt unclear to me. Instead of trying to resolve this ambiguity, I chose to embrace the diversity of approaches within critical design, its links to other fields, and the connections between them. By offering this tool, I hope to create a space where students can orientate themselves and navigate critical design in their own way.</p>
+
+        <p>CR!T is an online tool for exploring critical design through language. It invites design students to notice relationships between words and practices as they move across the web. The platform encourages active reflection and discovery, showing what critical design does through interaction.</p>
+
+        <p>Using a chrome extension, students toggle between the web and an online platform where collected sentences come together. Through color coding and spatial arrangement, patterns and relationships begin to emerge. In this way, language becomes a tool to collectively uncover patterns and relationships.</p>
+
+        <h3>How CR!T works</h3>
+        <p>CR!T maps critical design by placing sentences from selected online sources into a 3D-landscape. A sentence is included when it contains at least one keyword associated with a critical practice and one keyword associated with a design practice. This means that every sentence in the landscape represents an intersection between ways of being critical, ways of designing, and a moment in time.</p>
+
+        <p>The landscape is structured along three axes:</p>
+
+        <div class="info-box">
+            <p><strong>X-axis:</strong> Critical practices<br>
+            <strong>Y-axis:</strong> Design practices<br>
+            <strong>Z-axis:</strong> Date of publication</p>
+        </div>
+
+        <img src="graphkey.png" alt="graph key">
+
+        <p>The X- and Y-axes are composed of discrete positions. Each position represents a specific mode of engagement. On the critical axis, these range from questioning, critique and post-critical approaches. On the design axis, practices span from making and working, to inquiry and theorization. The order of these practices along the axes is a design decision. It does not imply hierarchy, progress, or value, but reflects different ways critical design can be enacted and articulated.</p>
+
+        <p>This ordering is intentionally open to critique: practices could be grouped differently, reordered, merged, or split, and doing so would produce a different landscape.</p>
+
+        <p>Keywords are expanded through lemmatization, meaning that different forms of the word are included. For example, critical also accounts for critically, criticality, criticize, criticized, and criticizing. This allows CR!T to register language as it appears in practice, rather than limiting it to fixed or idealized terms.</p>
+
+        <p>At the same time, this process raises questions about equivalence, simplification, and what is lost when language is grouped.</p>
+
+        <p>The Z-axis represents time, positioning sentences according to their year of publication. This temporal dimension makes it possible to observe shifts in language and critical design practice.</p>
+
+        <h3>Navigating the landscape</h3>
+        <p>You can explore the landscape via:</p>
+
+        <p><strong>Rotating:</strong> right click + drag<br>
+        <strong>Zooming:</strong> scroll wheel<br>
+        <strong>Pan:</strong> left-click + drag</p>
+
+        <p>Sentences appear where critical- and design practices, as well as dates intersect, allowing relationships to become spatial. A drawing layer can be activated to mark sentences, draw connections, or leave notes directly in the landscape. This turns the visualisation into a space for interpretation rather than a fixed representation.</p>
+
+        <div class="info-box">
+            <p><strong>Toggle drawing:</strong> D<br>
+            <strong>Draw line:</strong> Click 2 points<br>
+            <strong>Toggle text mode:</strong> T<br>
+            <strong>Place text:</strong> click location<br>
+            <strong>Clear all drawings:</strong> C</p>
+        </div>
+
+        <p>You are invited to be critical of what you see: the choice of keywords, the ordering of the keywords on the axes, the sources included, and which voices or forms of language might be hidden or not included.</p>
+
+        <p>(In the future) You can suggest new keywords, which appear in a different font to distinguish them from the original vocabulary and make visible how the system evolves. CR!T is not a neutral overview of critical design. It is a situated tool, currently based on sources from educational and cultural institutions in the Netherlands, shaped by my research process, readings, and interviews.</p>
+    </div>
+</body>
+</html>

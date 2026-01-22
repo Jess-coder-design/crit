@@ -1,0 +1,35 @@
+{
+  "criticalOrder": {
+    "question": 1,
+    "critique": 2,
+    "critical": 3,
+    "interrogate": 4,
+    "problematize": 5,
+    "reframe": 6,
+    "reflect": 7,
+    "position": 8,
+    "post-critical": 9
+  },
+  "designOrder": {
+    "work": 1,
+    "craft": 2,
+    "applied art": 3,
+    "practice": 4,
+    "design": 5,
+    "project": 6,
+    "plan": 7,
+    "intend": 8,
+    "iterate": 9,
+    "explore": 10,
+    "inquire": 11,
+    "analyze": 12,
+    "evaluate": 13,
+    "investigate": 14,
+    "conceptualize": 15,
+    "narrate": 16,
+    "discourse": 17,
+    "dialecticize": 18,
+    "systematize": 19,
+    "theorize": 20
+  }
+}
