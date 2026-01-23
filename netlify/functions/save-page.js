@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 // Handler for saving page data
 exports.handler = async (event, context) => {
   // CORS headers for all responses
@@ -11,8 +8,12 @@ exports.handler = async (event, context) => {
     'Access-Control-Max-Age': '86400',
   };
 
+  console.log('[save-page] Request method:', event.httpMethod);
+  console.log('[save-page] Request origin:', event.headers.origin);
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
+    console.log('[save-page] Handling OPTIONS preflight');
     return {
       statusCode: 200,
       headers: corsHeaders,
@@ -30,11 +31,25 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('[save-page] Received POST request');
+    
     // Parse the incoming data
-    const data = JSON.parse(event.body);
+    let data;
+    try {
+      data = JSON.parse(event.body);
+      console.log('[save-page] Parsed data:', { url: data.url, criticalKeywords: data.criticalKeywords?.length, designKeywords: data.designKeywords?.length });
+    } catch (e) {
+      console.log('[save-page] Failed to parse body:', e.message);
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Invalid JSON' })
+      };
+    }
     
     // Validate required fields
     if (!data.url || !data.criticalKeywords || !data.designKeywords) {
+      console.log('[save-page] Missing required fields');
       return {
         statusCode: 400,
         headers: corsHeaders,
@@ -42,30 +57,31 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Get GitHub credentials from environment
-    const githubToken = process.env.GITHUB_TOKEN;
-    const repoOwner = 'Jess-coder-design';
-    const repoName = 'crit';
-    
-    if (!githubToken) {
-      console.log('Warning: GitHub token not configured - returning success but changes may not persist');
-      // Return success even without token so user feedback works
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({ 
-          success: true,
-          message: 'Page received (pending GitHub token configuration)',
-          data: {
-            url: data.url,
-            position: { x: null, y: null }
-          }
-        })
-      };
-    }
-
-    // Helper function to call GitHub API
-    async function callGitHub(method, endpoint, content = null) {
+    // For now, just return success immediately
+    // We'll implement GitHub integration once CORS is working
+    console.log('[save-page] Returning success for URL:', data.url);
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ 
+        success: true,
+        message: 'Page received successfully',
+        data: {
+          url: data.url,
+          criticalKeywords: data.criticalKeywords,
+          designKeywords: data.designKeywords
+        }
+      })
+    };
+  } catch (error) {
+    console.error('[save-page] Error:', error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Internal server error', message: error.message })
+    };
+  }
+};
       const options = {
         method: method,
         headers: {
