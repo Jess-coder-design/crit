@@ -1158,6 +1158,9 @@
         // ============================================
         
         function animateToSentence(sentenceSearchText, panDuration = 5000, holdDuration = 5000) {
+            console.log('[animateToSentence] Starting animation for:', sentenceSearchText);
+            console.log('[animateToSentence] Total sprites available:', allSentenceSprites.length);
+            
             // Find the sprite that contains this sentence
             const sprite = allSentenceSprites.find(s => 
                 s.userData.text.includes(sentenceSearchText) || 
@@ -1165,13 +1168,16 @@
             );
             
             if (!sprite) {
-                console.warn('Sentence not found:', sentenceSearchText);
+                console.error('[animateToSentence] Sentence not found:', sentenceSearchText);
+                console.log('[animateToSentence] Available sentences:', allSentenceSprites.map(s => s.userData.text.substring(0, 50)));
                 return;
             }
             
-            console.log('Animating to sentence:', sentenceSearchText);
+            console.log('[animateToSentence] Found sprite at position:', sprite.position);
+            console.log('[animateToSentence] Pan duration: ' + panDuration + 'ms, Hold duration: ' + holdDuration + 'ms');
             
             // Disable orbit controls during animation
+            const wasControlsEnabled = controls.enabled;
             controls.enabled = false;
             
             // Calculate target position (slightly back from the sprite for good viewing angle)
@@ -1181,6 +1187,9 @@
             // Start pan animation
             const startPos = camera.position.clone();
             const startTime = Date.now();
+            
+            console.log('[animateToSentence] Starting position:', startPos);
+            console.log('[animateToSentence] Target position:', targetPos);
             
             function panCamera() {
                 const elapsed = Date.now() - startTime;
@@ -1192,6 +1201,7 @@
                 if (progress < 1) {
                     requestAnimationFrame(panCamera);
                 } else {
+                    console.log('[animateToSentence] Pan complete, holding...');
                     // Pan complete, now hold for holdDuration
                     holdCamera();
                 }
@@ -1209,8 +1219,8 @@
                         requestAnimationFrame(keep);
                     } else {
                         // Animation complete, re-enable controls
-                        controls.enabled = true;
-                        console.log('Animation complete');
+                        controls.enabled = wasControlsEnabled;
+                        console.log('[animateToSentence] Animation complete!');
                     }
                 }
                 
