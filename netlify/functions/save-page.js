@@ -131,6 +131,87 @@ exports.handler = async (event, context) => {
       console.log('Could not write submissions.json:', err.message);
     }
 
+    // Load keywordsorder.json to get position mappings
+    let criticalOrder = {};
+    let designOrder = {};
+    try {
+      const keywordsOrderPath = path.join(process.env.LAMBDA_TASK_ROOT || '', '..', '..', 'landscape', 'json', 'landscape', 'keywordsorder.json');
+      if (fs.existsSync(keywordsOrderPath)) {
+        const keywordsOrderData = JSON.parse(fs.readFileSync(keywordsOrderPath, 'utf8'));
+        criticalOrder = keywordsOrderData.criticalOrder || {};
+        designOrder = keywordsOrderData.designOrder || {};
+      }
+    } catch (err) {
+      console.log('Could not read keywordsorder.json:', err.message);
+    }
+
+    // Find dominant critical and design keywords to determine position
+    let dominantCritical = null;
+    let dominantDesign = null;
+    let criticalPosition = null;
+    let designPosition = null;
+
+    if (Array.isArray(data.criticalKeywords) && data.criticalKeywords.length > 0) {
+      dominantCritical = data.criticalKeywords[0];
+      criticalPosition = criticalOrder[dominantCritical] || null;
+    }
+
+    if (Array.isArray(data.designKeywords) && data.designKeywords.length > 0) {
+      dominantDesign = data.designKeywords[0];
+      designPosition = designOrder[dominantDesign] || null;
+    }
+
+    // Calculate x and y coordinates based on positions (or use null if not found)
+    // x coordinate is based on critical position
+    let xCoord = null;
+    if (criticalPosition !== null) {
+      xCoord = criticalPosition;
+    }
+
+    // y coordinate is based on design position
+    let yCoord = null;
+    if (designPosition !== null) {
+      yCoord = designPosition;
+    }
+
+    // Create position entry for position_3dmap.json
+    const positionEntry = {
+      url: data.url,
+      sentence: `Added via CR!T extension - Critical keywords: ${criticalKeywordsStr}. Design keywords: ${designKeywordsStr}`,
+      x: xCoord,
+      y: yCoord,
+      z: null,
+      date: null,
+      _dominant_critical_practice: dominantCritical,
+      _critical_axis_position: criticalPosition,
+      _dominant_design_practice: dominantDesign,
+      _design_axis_position: designPosition,
+      source: "new"
+    };
+
+    // Load position_3dmap.json and add new entry
+    let positions = [];
+    try {
+      const positionsPath = path.join(process.env.LAMBDA_TASK_ROOT || '', '..', '..', 'landscape', 'json', 'landscape', 'position_3dmap.json');
+      if (fs.existsSync(positionsPath)) {
+        positions = JSON.parse(fs.readFileSync(positionsPath, 'utf8'));
+      }
+    } catch (err) {
+      console.log('Could not read position_3dmap.json:', err.message);
+    }
+
+    // Add the new entry
+    positions.push(positionEntry);
+
+    // Save updated position_3dmap.json
+    try {
+      const positionsPath = path.join(process.env.LAMBDA_TASK_ROOT || '', '..', '..', 'landscape', 'json', 'landscape', 'position_3dmap.json');
+      fs.writeFileSync(positionsPath, JSON.stringify(positions, null, 2));
+      console.log('Added entry to position_3dmap.json with position:', { x: xCoord, y: yCoord });
+    } catch (err) {
+      console.log('Could not write position_3dmap.json:', err.message);
+    }
+
     // Create analysis entry for 3dmap_analysis.json
     const analysisEntry = {
       url: data.url,
