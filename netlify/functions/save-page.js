@@ -1,3 +1,5 @@
+const fetch = require("node-fetch"); // make sure Netlify supports this; optional in newer Node versions
+
 exports.handler = async (event) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -5,97 +7,144 @@ exports.handler = async (event) => {
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
+  // Handle preflight OPTIONS
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: "",
-    };
+    return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers: corsHeaders,
-      body: "Method Not Allowed",
-    };
+    return { statusCode: 405, headers: corsHeaders, body: "Method Not Allowed" };
   }
 
   try {
+    // Parse incoming submission
     const data = JSON.parse(event.body || "{}");
+    const { url, criticalKeywords, designKeywords } = data;
 
-    if (!data.url) {
+    if (!url || !criticalKeywords || !designKeywords) {
       return {
         statusCode: 400,
         headers: corsHeaders,
-        body: JSON.stringify({ error: "Missing url" }),
+        body: JSON.stringify({ error: "Missing required fields" }),
       };
     }
 
+    // GitHub setup
     const token = process.env.GITHUB_TOKEN;
-    const owner = "Jess-coder-design";
+    const owner = "Jess-coder-design"; // <-- replace with your GitHub username
     const repo = "crit";
-    const path = "landscape/json/landscape/position_3dmap.json";
 
-    const githubHeaders = {
+    const positionPath = "landscape/json/landscape/position_3dmap.json";
+    const orderPath = "landscape/json/landscape/keywordsorder.json";
+
+    const ghHeaders = {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
       "User-Agent": "crit-netlify-function",
     };
 
-    // 1) Load current file from GitHub
-    const fileRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
-      { headers: githubHeaders }
+    // ── Load keywords order ─────────────────────────────
+    const orderRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${orderPath}`,
+      { headers: ghHeaders }
     );
 
-    if (!fileRes.ok) {
-      throw new Error("Failed to load position_3dmap.json");
+    if (!orderRes.ok) {
+      throw new Error("Could not load keywordsorder.json");
     }
 
-    const fileData = await fileRes.json();
-    const json = JSON.parse(Buffer.from(fileData.content, "base64").toString());
+    const orderData = await orderRes.json();
+    const orderJson = JSON.parse(
+      Buffer.from(orderData.content, "base64").toString()
+    );
 
-    // 2) Append new entry
+    const criticalOrder = orderJson.criticalOrder || {};
+    const designOrder = orderJson.designOrder || {};
+
+    const dominantCritical = Array.isArray(criticalKeywords)
+      ? criticalKeywords[0]
+      : criticalKeywords;
+    const dominantDesign = Array.isArray(designKeywords)
+      ? designKeywords[0]
+      : designKeywords;
+
+    const x = criticalOrder[dominantCritical] ?? null;
+    const y = designOrder[dominantDesign] ?? null;
+
+    // ── Load current positions ──────────────────────────
+    const posRes = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${positionPath}`,
+      { headers: ghHeaders }
+    );
+
+    if (!posRes.ok) {
+      throw new Error("Could not load position_3dmap.json");
+    }
+
+    const posData = await posRes.json();
+    const positions = JSON.parse(
+      Buffer.from(posData.content, "base64").toString()
+    );
+
+    // ── Optional: check for duplicates ─────────────────
+    if (positions.some((entry) => entry.url === url)) {
+      return {
+        statusCode: 409,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "URL already submitted", url }),
+      };
+    }
+
+    // ── Add new entry ───────────────────────────────────
     const newEntry = {
-      url: data.url,
-      sentence: "Added via CR!T extension",
-      x: null,
-      y: null,
+      url,
+      sentence: `Added via CR!T extension`,
+      x,
+      y,
       z: null,
       source: "extension",
       timestamp: new Date().toISOString(),
+      _dominant_critical_practice: dominantCritical,
+      _dominant_design_practice: dominantDesign,
     };
 
-    json.push(newEntry);
+    positions.push(newEntry);
 
-    // 3) Save back to GitHub
-    const updatedContent = Buffer.from(JSON.stringify(json, null, 2)).toString("base64");
+    // ── Save back to GitHub ─────────────────────────────
+    const updated = Buffer.from(JSON.stringify(positions, null, 2)).toString(
+      "base64"
+    );
 
     const updateRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      `https://api.github.com/repos/${owner}/${repo}/contents/${positionPath}`,
       {
         method: "PUT",
-        headers: githubHeaders,
+        headers: ghHeaders,
         body: JSON.stringify({
-          message: `Add new submission: ${data.url}`,
-          content: updatedContent,
-          sha: fileData.sha,
+          message: `Add submission: ${url}`,
+          content: updated,
+          sha: posData.sha,
         }),
       }
     );
 
     if (!updateRes.ok) {
-      throw new Error("Failed to update GitHub file");
+      const text = await updateRes.text();
+      throw new Error(`Failed to update GitHub file: ${text}`);
     }
 
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify({ success: true, added: data.url }),
+      body: JSON.stringify({
+        success: true,
+        url,
+        position: { x, y },
+        message: "Submission saved successfully",
+      }),
     };
   } catch (err) {
-    console.error("ERROR:", err);
+    console.error(err);
     return {
       statusCode: 500,
       headers: corsHeaders,
