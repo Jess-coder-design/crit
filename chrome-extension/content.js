@@ -52,9 +52,141 @@ addButton.addEventListener('mouseenter', () => {
 addButton.addEventListener('mouseleave', () => {
   addButton.style.transform = 'scale(1)';
 });
+addButton.addEventListener('click', handleAddButtonClick);
+
 // Only add button on non-landscape pages
 if (!isLandscapePage) {
   document.documentElement.appendChild(addButton);
+}
+
+// Handle Add button click
+async function handleAddButtonClick() {
+  const currentUrl = window.location.href;
+  console.log('Add button clicked for URL:', currentUrl);
+  
+  // Get stored pages from chrome storage
+  chrome.storage.local.get('savedPages', async (result) => {
+    const savedPages = result.savedPages || [];
+    
+    // Check if URL is already in list
+    const urlExists = savedPages.some(page => page.url === currentUrl);
+    if (urlExists) {
+      console.log('URL already exists in saved list:', currentUrl);
+      return;
+    }
+    
+    console.log('URL is new, checking keywords...');
+    
+    // Fetch keywords.json to validate groups
+    try {
+      const response = await fetch(chrome.runtime.getURL('keywords.json'));
+      const keywordsData = await response.json();
+      
+      // Check if there's at least one critical keyword and one design keyword
+      let hasCriticalKeyword = false;
+      let hasDesignKeyword = false;
+      
+      // Get all critical keywords
+      const criticalKeywords = new Set();
+      if (keywordsData['x-axis'] && keywordsData['x-axis'].critical) {
+        Object.entries(keywordsData['x-axis'].critical).forEach(([base, variations]) => {
+          variations.forEach(v => criticalKeywords.add(v.toLowerCase()));
+        });
+      }
+      
+      // Get all design keywords
+      const designKeywords = new Set();
+      if (keywordsData['y-axis'] && keywordsData['y-axis'].design) {
+        Object.entries(keywordsData['y-axis'].design).forEach(([base, variations]) => {
+          variations.forEach(v => designKeywords.add(v.toLowerCase()));
+        });
+      }
+      
+      // Check page content for keywords
+      const pageText = document.body.innerText.toLowerCase();
+      
+      for (let keyword of criticalKeywords) {
+        if (pageText.includes(keyword)) {
+          hasCriticalKeyword = true;
+          break;
+        }
+      }
+      
+      for (let keyword of designKeywords) {
+        if (pageText.includes(keyword)) {
+          hasDesignKeyword = true;
+          break;
+        }
+      }
+      
+      if (hasCriticalKeyword && hasDesignKeyword) {
+        console.log('✓ Page has both critical and design keywords');
+        
+        // Extract which specific keywords were found
+        const foundCriticalKeywords = [];
+        const foundDesignKeywords = [];
+        
+        for (let keyword of criticalKeywords) {
+          if (pageText.includes(keyword)) {
+            foundCriticalKeywords.push(keyword);
+          }
+        }
+        
+        for (let keyword of designKeywords) {
+          if (pageText.includes(keyword)) {
+            foundDesignKeywords.push(keyword);
+          }
+        }
+        
+        // Create page entry with keywords
+        const pageEntry = {
+          url: currentUrl,
+          timestamp: new Date().toISOString(),
+          criticalKeywords: foundCriticalKeywords,
+          designKeywords: foundDesignKeywords
+        };
+        
+        // Add to existing pages
+        savedPages.push(pageEntry);
+        
+        // Save the updated list locally
+        chrome.storage.local.set({ savedPages: savedPages });
+        
+        // Send data to Netlify function
+        try {
+          const response = await fetch('https://designwikigrad.netlify.app/api/save-page', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              url: currentUrl,
+              criticalKeywords: foundCriticalKeywords,
+              designKeywords: foundDesignKeywords
+            })
+          });
+          
+          if (response.ok) {
+            console.log('✓ Data sent to server successfully');
+          } else {
+            console.error('Failed to send data to server:', response.status);
+          }
+        } catch (error) {
+          console.error('Error sending data to server:', error);
+        }
+        
+        console.log('Page saved with keywords:', {
+          url: currentUrl,
+          criticalKeywords: foundCriticalKeywords,
+          designKeywords: foundDesignKeywords
+        });
+      } else {
+        console.log('✗ Page missing required keywords. Critical:', hasCriticalKeyword, 'Design:', hasDesignKeyword);
+      }
+    } catch (error) {
+      console.error('Error checking keywords:', error);
+    }
+  });
 }
 
 // Wait for DOM to be ready

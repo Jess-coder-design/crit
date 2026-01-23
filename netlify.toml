@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/api/save-page"
+  to = "/.netlify/functions/save-page"
+  status = 200
