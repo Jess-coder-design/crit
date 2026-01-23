@@ -17,7 +17,7 @@ exports.handler = async (event) => {
   try {
     // Parse incoming submission
     const data = JSON.parse(event.body || "{}");
-    const { url, criticalKeywords, designKeywords } = data;
+    const { url, criticalKeywords, designKeywords, sentence } = data;
 
     if (!url || !criticalKeywords || !designKeywords) {
       return {
@@ -96,7 +96,7 @@ exports.handler = async (event) => {
     // ── Add new entry ───────────────────────────────────
     const newEntry = {
       url,
-      sentence: `Added via CR!T extension`,
+      sentence: sentence || `Added via CR!T extension`,
       x,
       y,
       z: null,
