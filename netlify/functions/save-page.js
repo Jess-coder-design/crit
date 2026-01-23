@@ -3,15 +3,19 @@ const path = require('path');
 
 // Handler for saving page data
 exports.handler = async (event, context) => {
+  // CORS headers for all responses
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+  };
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
-      },
+      headers: corsHeaders,
       body: ''
     };
   }
@@ -20,10 +24,7 @@ exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -36,10 +37,7 @@ exports.handler = async (event, context) => {
     if (!data.url || !data.criticalKeywords || !data.designKeywords) {
       return {
         statusCode: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Missing required fields' })
       };
     }
@@ -54,10 +52,7 @@ exports.handler = async (event, context) => {
       // Return success even without token so user feedback works
       return {
         statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json'
-        },
+        headers: corsHeaders,
         body: JSON.stringify({ 
           success: true,
           message: 'Page received (pending GitHub token configuration)',
@@ -220,10 +215,7 @@ exports.handler = async (event, context) => {
     // Return success
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ 
         success: true,
         message: 'Page saved and analyzed successfully',
@@ -413,10 +405,7 @@ exports.handler = async (event, context) => {
     // Return success
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         success: true,
         message: 'Page saved and analyzed successfully',
@@ -427,10 +416,7 @@ exports.handler = async (event, context) => {
     console.error('Error processing submission:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Failed to process submission', details: error.message })
     };
   }
