@@ -131,8 +131,43 @@ exports.handler = async (event, context) => {
       console.log('Could not write submissions.json:', err.message);
     }
 
+    // Create analysis entry for 3dmap_analysis.json
+    const analysisEntry = {
+      url: data.url,
+      year: null,
+      sentence: `Added via CR!T extension - Critical keywords: ${criticalKeywordsStr}. Design keywords: ${designKeywordsStr}`,
+      critical_keywords: Array.isArray(data.criticalKeywords) ? data.criticalKeywords.length : 1,
+      critical: Array.isArray(data.criticalKeywords) ? data.criticalKeywords : [data.criticalKeywords],
+      design_keywords: Array.isArray(data.designKeywords) ? data.designKeywords.length : 1,
+      design: Array.isArray(data.designKeywords) ? data.designKeywords : [data.designKeywords]
+    };
+
+    // Load 3dmap_analysis.json and add new entry
+    let analysis = [];
+    try {
+      const analysisPath = path.join(process.env.LAMBDA_TASK_ROOT || '', '..', '..', 'landscape', 'json', 'landscape', '3dmap_analysis.json');
+      if (fs.existsSync(analysisPath)) {
+        analysis = JSON.parse(fs.readFileSync(analysisPath, 'utf8'));
+      }
+    } catch (err) {
+      console.log('Could not read 3dmap_analysis.json:', err.message);
+    }
+
+    // Add the new entry
+    analysis.push(analysisEntry);
+
+    // Save updated 3dmap_analysis.json
+    try {
+      const analysisPath = path.join(process.env.LAMBDA_TASK_ROOT || '', '..', '..', 'landscape', 'json', 'landscape', '3dmap_analysis.json');
+      fs.writeFileSync(analysisPath, JSON.stringify(analysis, null, 2));
+      console.log('Added entry to 3dmap_analysis.json');
+    } catch (err) {
+      console.log('Could not write 3dmap_analysis.json:', err.message);
+    }
+
     // Log to console (Netlify will show this in logs)
     console.log('Page submission saved:', submission);
+    console.log('Analysis entry added:', analysisEntry);
 
     // Return success
     return {
@@ -143,7 +178,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        message: 'Page saved successfully',
+        message: 'Page saved and analyzed successfully',
         data: submission
       })
     };
