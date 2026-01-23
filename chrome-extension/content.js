@@ -5,8 +5,9 @@ let selectionTimeout = null;
 // Apply orange blur by default (unless this is the CR!T landscape page)
 // Check if this is the landscape page by looking at the URL
 const isLandscapePage = window.location.pathname.includes('index.html') && window.location.port === '5500';
+const isCritSite = window.location.hostname.includes('crit-online.netlify.app') || window.location.hostname === 'localhost';
 
-if (!isLandscapePage) {
+if (!isLandscapePage && !isCritSite) {
   applyOrangeBlur();
 }
 
@@ -54,8 +55,8 @@ addButton.addEventListener('mouseleave', () => {
 });
 addButton.addEventListener('click', handleAddButtonClick);
 
-// Only add button on non-landscape pages
-if (!isLandscapePage) {
+// Only add button on non-landscape pages and non-CRIT pages
+if (!isLandscapePage && !isCritSite) {
   document.documentElement.appendChild(addButton);
 }
 
