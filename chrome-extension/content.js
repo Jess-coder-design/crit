@@ -214,6 +214,9 @@ function initializeHighlighting() {
       }
     }
   );
+
+  // Also highlight designers
+  highlightDesigners();
 }
 
 // Listen for messages from popup to toggle blur
@@ -482,5 +485,94 @@ function redrawConnections() {
     circle.setAttribute('fill', '#FF6600');
     svg.appendChild(circle);
   });
+}
+
+function highlightDesigners() {
+  // Load designers.json
+  fetch(chrome.runtime.getURL('designers.json'))
+    .then(response => response.json())
+    .then(designers => {
+      console.log('Loaded designers:', designers.length);
+      
+      // Build designer name map
+      const designerMap = {};
+      designers.forEach(designer => {
+        designerMap[designer.name.toLowerCase()] = designer.url;
+      });
+      
+      // Sort by length (longest first) to avoid partial matches
+      const sortedDesigners = Object.keys(designerMap).sort((a, b) => b.length - a.length);
+      
+      // Use TreeWalker to process all text nodes
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
+      
+      const nodesToReplace = [];
+      let node;
+      
+      while (node = walker.nextNode()) {
+        // Skip certain parent elements
+        if (node.parentElement && ['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentElement.tagName)) {
+          continue;
+        }
+        
+        let text = node.textContent;
+        let hasMatch = false;
+        
+        // Check if any designer name matches
+        for (let designer of sortedDesigners) {
+          const regex = new RegExp(`\\b${designer}\\b`, 'i');
+          if (regex.test(text)) {
+            hasMatch = true;
+            break;
+          }
+        }
+        
+        if (hasMatch) {
+          nodesToReplace.push({ node, sortedDesigners, designerMap });
+        }
+      }
+      
+      console.log('Found', nodesToReplace.length, 'text nodes with designer names');
+      
+      // Now replace the nodes
+      nodesToReplace.forEach(({ node, sortedDesigners, designerMap }) => {
+        const span = document.createElement('span');
+        let html = node.textContent;
+        
+        // Escape HTML first
+        html = html
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+        
+        // Replace designer names with highlights
+        for (let designer of sortedDesigners) {
+          const url = designerMap[designer];
+          const escapedDesigner = designer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`\\b(${escapedDesigner})\\b`, 'gi');
+          
+          if (url) {
+            // Has URL, make it clickable
+            html = html.replace(regex, `<a href="${url}" target="_blank" style="color: #000; text-decoration: underline; cursor: pointer;" data-designer="${designer}">$1</a>`);
+          } else {
+            // No URL, just highlight in black
+            html = html.replace(regex, `<span style="color: #000; font-weight: bold;" data-designer="${designer}">$1</span>`);
+          }
+        }
+        
+        span.innerHTML = html;
+        node.parentNode.replaceChild(span, node);
+      });
+      
+      console.log('Designer highlighting complete');
+    })
+    .catch(error => console.error('Error loading designers.json:', error));
 }
 
