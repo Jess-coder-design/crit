@@ -2,16 +2,3 @@
   functions = "netlify/functions"
   publish = "."
 
-[[redirects]]
-  from = "/api/save-page"
-  to = "/.netlify/functions/save-page"
-  status = 200
-  force = false
-
-[[headers]]
-  for = "/api/save-page"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Methods = "POST, OPTIONS, GET"
-    Access-Control-Allow-Headers = "Content-Type"
-
