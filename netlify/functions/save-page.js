@@ -82,7 +82,6 @@ exports.handler = async (event, context) => {
     };
   }
 };
-        method: method,
         headers: {
           'Authorization': `token ${githubToken}`,
           'Accept': 'application/vnd.github.v3+json',
