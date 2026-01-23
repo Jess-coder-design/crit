@@ -206,13 +206,17 @@
             
             // Function to load and display new submissions
             function loadNewSubmissions() {
-                fetch('landscape/json/landscape/position_3dmap.json')
+                // Add cache-busting parameter to always get fresh data
+                fetch('landscape/json/landscape/position_3dmap.json?' + Date.now())
                     .then(r => r.json())
                     .then(data => {
+                        console.log('[CRIT] Loaded position_3dmap.json, total entries:', data.length);
                         const newSubmissions = data.filter(item => item.source === 'new');
+                        console.log('[CRIT] Found new submissions:', newSubmissions.length);
                         
                         if (newSubmissions.length === 0) {
                             submissionsPanel.innerHTML = '<div class="submissions-empty">No new submissions yet</div>';
+                            console.log('[CRIT] No new submissions to display');
                             return;
                         }
                         
@@ -222,6 +226,8 @@
                             const url = new URL(item.url);
                             const domain = url.hostname;
                             const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+                            
+                            console.log('[CRIT] Displaying submission:', domain, item._dominant_critical_practice, item._dominant_design_practice);
                             
                             html += `
                                 <div class="submission-item" data-url="${item.url}" data-sentence="${item.sentence.replace(/"/g, '&quot;')}">
@@ -272,7 +278,7 @@
                             });
                         });
                     })
-                    .catch(err => console.error('Error loading submissions:', err));
+                    .catch(err => console.error('[CRIT] Error loading submissions:', err));
             }
             
             // Load submissions initially
