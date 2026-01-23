@@ -154,7 +154,7 @@ async function handleAddButtonClick() {
         
         // Send data to Netlify function
         try {
-          const response = await fetch('https://designwikigrad.netlify.app/api/save-page', {
+          const response = await fetch('https://crit-online.netlify.app/api/save-page', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
