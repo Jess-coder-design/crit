@@ -17,8 +17,7 @@ body {
     color: #333;
 }
 
-body::before {
-    content: '';
+.glow-overlay {
     position: fixed;
     top: 0;
     left: 0;
