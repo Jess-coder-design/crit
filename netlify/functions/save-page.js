@@ -33,10 +33,11 @@ exports.handler = async (event, context) => {
   try {
     console.log('[save-page] Received POST request');
     
-    // Parse the incoming data
+    // Parse the incoming data (handles both application/json and text/plain)
     let data;
     try {
-      data = JSON.parse(event.body);
+      const bodyText = typeof event.body === 'string' ? event.body : JSON.stringify(event.body);
+      data = JSON.parse(bodyText);
       console.log('[save-page] Parsed data:', { url: data.url, criticalKeywords: data.criticalKeywords?.length, designKeywords: data.designKeywords?.length });
     } catch (e) {
       console.log('[save-page] Failed to parse body:', e.message);

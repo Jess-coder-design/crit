@@ -160,7 +160,7 @@ async function handleAddButtonClick() {
           const response = await fetch('https://crit-online.netlify.app/.netlify/functions/save-page', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
+              'Content-Type': 'text/plain',  // Use text/plain to avoid preflight request
             },
             body: JSON.stringify({
               url: currentUrl,
