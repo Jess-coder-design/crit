@@ -16,6 +16,10 @@
         <button id="keywordToggle">Keywords</button>
         <div id="keywordPanel" class="keyword-panel"></div>
     </div>
+    <div class="submissions-container">
+        <button id="submissionsToggle">New Submissions</button>
+        <div id="submissionsPanel" class="submissions-panel"></div>
+    </div>
     <div id="tooltip"></div>
     
     <!-- Axis labels overlay -->
@@ -191,6 +195,91 @@
                     el.style.transform = 'scale(1)';
                 });
             });
+            
+            // Setup New Submissions panel
+            const submissionsToggle = document.getElementById('submissionsToggle');
+            const submissionsPanel = document.getElementById('submissionsPanel');
+            
+            submissionsToggle.addEventListener('click', () => {
+                submissionsPanel.classList.toggle('open');
+            });
+            
+            // Function to load and display new submissions
+            function loadNewSubmissions() {
+                fetch('landscape/json/landscape/position_3dmap.json')
+                    .then(r => r.json())
+                    .then(data => {
+                        const newSubmissions = data.filter(item => item.source === 'new');
+                        
+                        if (newSubmissions.length === 0) {
+                            submissionsPanel.innerHTML = '<div class="submissions-empty">No new submissions yet</div>';
+                            return;
+                        }
+                        
+                        let html = '<div class="submissions-header">New Submissions (' + newSubmissions.length + ')</div>';
+                        
+                        newSubmissions.forEach(item => {
+                            const url = new URL(item.url);
+                            const domain = url.hostname;
+                            const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+                            
+                            html += `
+                                <div class="submission-item" data-url="${item.url}" data-sentence="${item.sentence.replace(/"/g, '&quot;')}">
+                                    <a href="${item.url}" target="_blank" class="submission-url">${domain}</a>
+                                    <div class="submission-keywords"><strong>Critical:</strong> ${item._dominant_critical_practice || 'N/A'}</div>
+                                    <div class="submission-keywords"><strong>Design:</strong> ${item._dominant_design_practice || 'N/A'}</div>
+                                    <div class="submission-timestamp">${timestamp}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        submissionsPanel.innerHTML = html;
+                        
+                        // Add click handlers to jump to submission on map
+                        submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
+                            item.addEventListener('click', (e) => {
+                                if (e.target.tagName !== 'A') {
+                                    e.preventDefault();
+                                    const sentence = item.dataset.sentence;
+                                    
+                                    // Find the sprite with this sentence
+                                    const sprite = allSentenceSprites.find(s => s.userData.text === sentence);
+                                    if (sprite) {
+                                        // Animate camera to sprite
+                                        const targetPos = sprite.position.clone();
+                                        targetPos.z -= 0.5;
+                                        
+                                        // Simple camera animation
+                                        const startPos = camera.position.clone();
+                                        const startTime = Date.now();
+                                        const duration = 800; // milliseconds
+                                        
+                                        function animateCamera() {
+                                            const elapsed = Date.now() - startTime;
+                                            const progress = Math.min(elapsed / duration, 1);
+                                            
+                                            camera.position.lerpVectors(startPos, targetPos, progress);
+                                            camera.lookAt(sprite.position);
+                                            
+                                            if (progress < 1) {
+                                                requestAnimationFrame(animateCamera);
+                                            }
+                                        }
+                                        
+                                        animateCamera();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.error('Error loading submissions:', err));
+            }
+            
+            // Load submissions initially
+            loadNewSubmissions();
+            
+            // Reload submissions every 5 seconds to check for new entries
+            setInterval(loadNewSubmissions, 5000);
             
             // Now load data and create sprites with colors already loaded
             loadDataAndCreateSprites();

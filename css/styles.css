@@ -32,6 +32,7 @@ body::before {
 
 #canvas { 
     display: block;
+    pointer-events: none;
 }
 
 #info {
@@ -333,4 +334,136 @@ body::before {
 #drawingControls button:hover {
     background: #333;
     color: white;
+}
+
+/* ============================================
+   NEW SUBMISSIONS PANEL STYLES
+   ============================================ */
+.submissions-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: flex-start;
+    z-index: 1000;
+}
+
+#submissionsToggle {
+    padding: 4px 8px;
+    font-family: "PT Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    color: #333;
+    background-color: #FFE0B2;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1001;
+    position: relative;
+}
+
+#submissionsToggle:hover {
+    transform: scale(1.05);
+}
+
+.submissions-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: white;
+    border: 1.5px solid #333;
+    border-radius: 0;
+    max-width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    cursor: auto;
+    user-select: text;
+
+    transform: translateX(calc(100% + 20px));
+    opacity: 0;
+    pointer-events: none;
+
+    transition: transform 0.35s ease, opacity 0.35s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.submissions-panel.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.submissions-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.submissions-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.submissions-panel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.submissions-panel::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.submissions-header {
+    padding: 12px;
+    border-bottom: 1.5px solid #ddd;
+    font-weight: bold;
+    color: #333;
+    background: #FFF3E0;
+    position: sticky;
+    top: 0;
+}
+
+.submission-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.submission-item:hover {
+    background: #FFF9E6;
+}
+
+.submission-url {
+    font-size: 12px;
+    color: #0066cc;
+    text-decoration: none;
+    word-break: break-word;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.submission-url:hover {
+    text-decoration: underline;
+}
+
+.submission-keywords {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.submission-keywords strong {
+    color: #333;
+}
+
+.submission-timestamp {
+    font-size: 10px;
+    color: #999;
+}
+
+.submissions-empty {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-size: 12px;
 }
