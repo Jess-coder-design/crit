@@ -85,6 +85,7 @@
                     keywordColors[keyword.toLowerCase()] = data.color;
                 });
             }
+
             
             // Only show base keywords in the filter panel
             if (colorsData.criticalgroup) {
@@ -565,7 +566,7 @@
             }
 
             // Create text sprites for sentences
-            function createTextSprite(text, position, keywords = [], url = null) {
+            function createTextSprite(text, position, keywords = [], url = null, source = 'old') {
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d', { antialias: false });
                 canvas.width = 2048;
@@ -583,7 +584,9 @@
                 context.textBaseline = 'top';
                 
                 // Set to larger font for accurate width measurement (since keywords use 90px)
-                context.font = 'bold 90px PT Sans';
+                // Use italic for new entries
+                const fontStyle = source === 'new' ? 'italic bold 90px PT Sans' : 'bold 90px PT Sans';
+                context.font = fontStyle;
                 
                 // Word wrap - full text spread across multiple rows
                 const words = displayText.split(' ');
@@ -629,10 +632,10 @@
                         
                         // Set font and color based on keyword match
                         if (matchedColor) {
-                            context.font = 'bold 90px PT Sans';
+                            context.font = source === 'new' ? 'italic bold 90px PT Sans' : 'bold 90px PT Sans';
                             context.fillStyle = matchedColor;
                         } else {
-                            context.font = '80px PT Sans';
+                            context.font = source === 'new' ? 'italic 80px PT Sans' : '80px PT Sans';
                             context.fillStyle = '#333';
                         }
                         
@@ -663,7 +666,8 @@
                     lines: lines,
                     keywords: keywords,
                     originalTexture: texture,
-                    url: url
+                    url: url,
+                    source: source
                 };
                 
                 return sprite;
@@ -754,7 +758,7 @@
                     const keywords = [...analysis.critical, ...analysis.design];
                     
                     const position = new THREE.Vector3(xNorm, yNorm, zNorm);
-                    const sprite = createTextSprite(point.sentence, position, keywords, point.url);
+                    const sprite = createTextSprite(point.sentence, position, keywords, point.url, point.source || 'old');
                     scene.add(sprite);
                     sentenceSprites.push(sprite);
                 }
