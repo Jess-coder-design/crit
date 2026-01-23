@@ -2,10 +2,12 @@
 let selectedKeywords = [];
 let selectionTimeout = null;
 
-// Apply orange blur by default (unless this is the CR!T landscape page)
+// Apply orange blur by default (unless this is the CR!T landscape page or crit site)
 // Check if this is the landscape page by looking at the URL
 const isLandscapePage = window.location.pathname.includes('index.html') && window.location.port === '5500';
-const isCritSite = window.location.hostname.includes('crit-online.netlify.app') || window.location.hostname === 'localhost';
+const isCritSite = window.location.hostname === 'crit-online.netlify.app' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+console.log('[CRIT Extension] Hostname:', window.location.hostname, 'isCritSite:', isCritSite);
 
 if (!isLandscapePage && !isCritSite) {
   applyOrangeBlur();
