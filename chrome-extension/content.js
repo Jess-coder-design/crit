@@ -155,36 +155,24 @@ async function handleAddButtonClick() {
         // Save the updated list locally
         chrome.storage.local.set({ savedPages: savedPages });
         
-        // Send data to Netlify function
-        try {
-          const response = await fetch('https://crit-online.netlify.app/.netlify/functions/save-page', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'text/plain',  // Use text/plain to avoid preflight request
-            },
-            body: JSON.stringify({
+        // Send data to background script (which will handle the fetch)
+        chrome.runtime.sendMessage(
+          {
+            type: 'SAVE_PAGE',
+            payload: {
               url: currentUrl,
               criticalKeywords: foundCriticalKeywords,
               designKeywords: foundDesignKeywords
-            })
-          });
-          
-          const responseData = await response.json();
-          
-          if (response.ok) {
-            console.log('✓ Data sent to server successfully:', responseData);
-          } else {
-            console.error('Failed to send data to server. Status:', response.status, 'Response:', responseData);
+            }
+          },
+          (response) => {
+            if (response && response.success) {
+              console.log('✓ Page submitted successfully:', response.data);
+            } else {
+              console.error('✗ Failed to submit page:', response?.error || 'Unknown error');
+            }
           }
-        } catch (error) {
-          console.error('Error sending data to server:', error.message);
-        }
-        
-        console.log('Page saved with keywords:', {
-          url: currentUrl,
-          criticalKeywords: foundCriticalKeywords,
-          designKeywords: foundDesignKeywords
-        });
+        );
       } else {
         console.log('✗ Page missing required keywords. Critical:', hasCriticalKeyword, 'Design:', hasDesignKeyword);
       }

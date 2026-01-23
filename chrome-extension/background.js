@@ -55,4 +55,35 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     return true; // Keep channel open for async response
   }
+  
+  // Handle page submission
+  if (request.type === 'SAVE_PAGE') {
+    console.log('[Background] Received SAVE_PAGE request for:', request.payload.url);
+    
+    // Make the fetch call from background (no CORS issues)
+    fetch('https://crit-online.netlify.app/.netlify/functions/save-page', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain'  // Avoid preflight
+      },
+      body: JSON.stringify(request.payload)
+    })
+    .then(response => {
+      console.log('[Background] Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('[Background] ✓ Submission successful:', data);
+      sendResponse({ success: true, data: data });
+    })
+    .catch(error => {
+      console.error('[Background] ✗ Submission failed:', error.message);
+      sendResponse({ success: false, error: error.message });
+    });
+    
+    return true; // Keep channel open for async response
+  }
 });
