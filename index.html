@@ -1152,6 +1152,74 @@
         }
         animate();
 
+        // ============================================
+        // SENTENCE ANIMATION FEATURE - For video demos
+        // Usage: animateToSentence(sentenceText, panDuration, holdDuration)
+        // ============================================
+        
+        function animateToSentence(sentenceSearchText, panDuration = 5000, holdDuration = 5000) {
+            // Find the sprite that contains this sentence
+            const sprite = allSentenceSprites.find(s => 
+                s.userData.text.includes(sentenceSearchText) || 
+                s.userData.text.toLowerCase().includes(sentenceSearchText.toLowerCase())
+            );
+            
+            if (!sprite) {
+                console.warn('Sentence not found:', sentenceSearchText);
+                return;
+            }
+            
+            console.log('Animating to sentence:', sentenceSearchText);
+            
+            // Disable orbit controls during animation
+            controls.enabled = false;
+            
+            // Calculate target position (slightly back from the sprite for good viewing angle)
+            const targetPos = sprite.position.clone();
+            targetPos.z -= 0.5;
+            
+            // Start pan animation
+            const startPos = camera.position.clone();
+            const startTime = Date.now();
+            
+            function panCamera() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / panDuration, 1);
+                
+                camera.position.lerpVectors(startPos, targetPos, progress);
+                camera.lookAt(sprite.position);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(panCamera);
+                } else {
+                    // Pan complete, now hold for holdDuration
+                    holdCamera();
+                }
+            }
+            
+            function holdCamera() {
+                const holdStartTime = Date.now();
+                
+                function keep() {
+                    const elapsed = Date.now() - holdStartTime;
+                    
+                    camera.lookAt(sprite.position);
+                    
+                    if (elapsed < holdDuration) {
+                        requestAnimationFrame(keep);
+                    } else {
+                        // Animation complete, re-enable controls
+                        controls.enabled = true;
+                        console.log('Animation complete');
+                    }
+                }
+                
+                keep();
+            }
+            
+            panCamera();
+        }
+
         // Handle window resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
