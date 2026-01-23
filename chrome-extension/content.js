@@ -141,6 +141,13 @@ async function handleAddButtonClick() {
           }
         }
         
+        console.log('[CRIT] Found keywords:', {
+          critical: foundCriticalKeywords.slice(0, 5),
+          design: foundDesignKeywords.slice(0, 5),
+          totalCritical: foundCriticalKeywords.length,
+          totalDesign: foundDesignKeywords.length
+        });
+        
         // Create page entry with keywords
         const pageEntry = {
           url: currentUrl,
@@ -155,6 +162,20 @@ async function handleAddButtonClick() {
         // Save the updated list locally
         chrome.storage.local.set({ savedPages: savedPages });
         
+        // Extract a sentence from the page (from meta description, first paragraph, or title)
+        let sentence = '';
+        const metaDescription = document.querySelector('meta[name="description"]');
+        if (metaDescription) {
+          sentence = metaDescription.getAttribute('content');
+        } else {
+          const firstP = document.querySelector('p');
+          if (firstP && firstP.textContent) {
+            sentence = firstP.textContent.substring(0, 200);
+          } else if (document.title) {
+            sentence = document.title;
+          }
+        }
+
         // Send data to background script (which will handle the fetch)
         chrome.runtime.sendMessage(
           {
@@ -162,7 +183,8 @@ async function handleAddButtonClick() {
             payload: {
               url: currentUrl,
               criticalKeywords: foundCriticalKeywords,
-              designKeywords: foundDesignKeywords
+              designKeywords: foundDesignKeywords,
+              sentence: sentence
             }
           },
           (response) => {

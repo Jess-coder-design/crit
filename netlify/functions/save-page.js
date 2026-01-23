@@ -39,11 +39,26 @@ exports.handler = async (event) => {
     });
 
     // Try to write to GitHub if token is available
-    const githubToken = process.env.GITHUB_TOKEN;
+    const githubToken = process.env.newnewnew;
+    console.log('[save-page] Checking token - newnewnew exists?', !!githubToken);
+    
     if (githubToken) {
-      await writeToGitHub(url, criticalKeywords, designKeywords, sentence, githubToken);
+      console.log('[save-page] Token found, writing to GitHub...');
+      try {
+        await writeToGitHub(url, criticalKeywords, designKeywords, sentence, githubToken);
+        console.log('[save-page] Successfully wrote to GitHub');
+      } catch (gitError) {
+        console.error('[save-page] GitHub write failed:', gitError.message);
+        return {
+          statusCode: 500,
+          headers: corsHeaders,
+          body: JSON.stringify({ 
+            error: 'Failed to write to GitHub: ' + gitError.message 
+          }),
+        };
+      }
     } else {
-      console.warn('[save-page] GITHUB_TOKEN not set - skipping GitHub write');
+      console.warn('[save-page] newnewnew token not set - skipping GitHub write');
     }
 
     // Return success
@@ -68,6 +83,8 @@ exports.handler = async (event) => {
 
 async function writeToGitHub(url, criticalKeywords, designKeywords, sentence, token) {
   return new Promise((resolve, reject) => {
+    console.log('[writeToGitHub] Starting write to GitHub...');
+    
     const owner = 'Jess-coder-design';
     const repo = 'crit';
     const branch = 'main';
@@ -173,7 +190,7 @@ async function writeToGitHub(url, criticalKeywords, designKeywords, sentence, to
             let putData = '';
             res.on('data', chunk => putData += chunk);
             res.on('end', () => {
-              if (res.statusCode === 200) {
+              if (res.statusCode === 200 || res.statusCode === 201) {
                 console.log('[writeToGitHub] Successfully wrote to position_3dmap.json with position x:', x, 'y:', y);
                 resolve();
               } else {
