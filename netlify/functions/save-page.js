@@ -139,7 +139,8 @@ exports.handler = async (event, context) => {
       critical_keywords: Array.isArray(data.criticalKeywords) ? data.criticalKeywords.length : 1,
       critical: Array.isArray(data.criticalKeywords) ? data.criticalKeywords : [data.criticalKeywords],
       design_keywords: Array.isArray(data.designKeywords) ? data.designKeywords.length : 1,
-      design: Array.isArray(data.designKeywords) ? data.designKeywords : [data.designKeywords]
+      design: Array.isArray(data.designKeywords) ? data.designKeywords : [data.designKeywords],
+      source: "new"
     };
 
     // Load 3dmap_analysis.json and add new entry
