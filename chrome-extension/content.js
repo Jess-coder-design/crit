@@ -406,6 +406,14 @@ function addKeywordClickHandlers() {
 }
 
 function handleKeywordClick(e) {
+  // Check if the keyword is inside a link
+  const parentLink = e.target.closest('a');
+  if (parentLink) {
+    // If it's inside a link, allow normal link behavior
+    console.log('Keyword is inside a link, allowing normal link navigation');
+    return;
+  }
+  
   e.preventDefault();
   e.stopPropagation();
   
