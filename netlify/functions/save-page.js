@@ -1,5 +1,3 @@
-const fetch = require("node-fetch"); // make sure Netlify supports this; optional in newer Node versions
-
 exports.handler = async (event) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -7,7 +5,7 @@ exports.handler = async (event) => {
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
-  // Handle preflight OPTIONS
+  // Handle OPTIONS preflight
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders, body: "" };
   }
@@ -31,7 +29,7 @@ exports.handler = async (event) => {
 
     // GitHub setup
     const token = process.env.GITHUB_TOKEN;
-    const owner = "Jess-coder-design"; // <-- replace with your GitHub username
+    const owner = "Jess-coder-design"; // replace with your GitHub username
     const repo = "crit";
 
     const positionPath = "landscape/json/landscape/position_3dmap.json";
