@@ -1,5 +1,6 @@
 // Minimal bulletproof function - no file I/O, no external calls
-exports.handler = async (event, context) => {
+
+async function handler(event, context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -433,4 +434,6 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ error: 'Failed to process submission', details: error.message })
     };
   }
-};
+}
+
+module.exports = { handler };
