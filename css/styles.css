@@ -16,17 +16,19 @@ body {
     background: white;
     overflow: hidden;
     color: #333;
+    margin: 0;
+    padding: 0;
+    position: relative;
 }
 
-body::before {
-    content: '';
+.blur-edge {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    box-shadow: inset 0 0 40px #FF6600;
+    width: 100vw;
+    height: 100vh;
     pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 102, 0, 0.3) 0%, rgba(255, 102, 0, 0.1) 40%, rgba(255, 102, 0, 0) 70%);
     z-index: 9998;
 }
 
