@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load saved pages
   loadSavedPages();
+  
+  // Listen for storage changes and reload saved pages
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.savedPages) {
+      loadSavedPages();
+    }
+  });
 
   // Toggle on button click
   toggleBtn.addEventListener('click', () => {

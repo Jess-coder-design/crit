@@ -166,13 +166,15 @@ async function handleAddButtonClick() {
             })
           });
           
+          const responseData = await response.json();
+          
           if (response.ok) {
-            console.log('✓ Data sent to server successfully');
+            console.log('✓ Data sent to server successfully:', responseData);
           } else {
-            console.error('Failed to send data to server:', response.status);
+            console.error('Failed to send data to server. Status:', response.status, 'Response:', responseData);
           }
         } catch (error) {
-          console.error('Error sending data to server:', error);
+          console.error('Error sending data to server:', error.message);
         }
         
         console.log('Page saved with keywords:', {
