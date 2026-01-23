@@ -1,89 +1,87 @@
-// Handler for saving page data
+// Minimal bulletproof function - no file I/O, no external calls
 exports.handler = async (event, context) => {
-  // CORS headers for all responses
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age': '86400',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  console.log('[save-page] Request method:', event.httpMethod);
-  console.log('[save-page] Request origin:', event.headers.origin);
-
-  // Handle CORS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    console.log('[save-page] Handling OPTIONS preflight');
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: ''
-    };
-  }
-
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: corsHeaders,
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
-  }
+  console.log('[save-page] Request received:', event.httpMethod);
 
   try {
-    console.log('[save-page] Received POST request');
-    
-    // Parse the incoming data (handles both application/json and text/plain)
-    let data;
-    try {
-      const bodyText = typeof event.body === 'string' ? event.body : JSON.stringify(event.body);
-      data = JSON.parse(bodyText);
-      console.log('[save-page] Parsed data:', { url: data.url, criticalKeywords: data.criticalKeywords?.length, designKeywords: data.designKeywords?.length });
-    } catch (e) {
-      console.log('[save-page] Failed to parse body:', e.message);
+    // Handle OPTIONS preflight
+    if (event.httpMethod === 'OPTIONS') {
+      console.log('[save-page] Handling OPTIONS');
       return {
-        statusCode: 400,
+        statusCode: 200,
         headers: corsHeaders,
-        body: JSON.stringify({ error: 'Invalid JSON' })
-      };
-    }
-    
-    // Validate required fields
-    if (!data.url || !data.criticalKeywords || !data.designKeywords) {
-      console.log('[save-page] Missing required fields');
-      return {
-        statusCode: 400,
-        headers: corsHeaders,
-        body: JSON.stringify({ error: 'Missing required fields' })
+        body: '',
       };
     }
 
-    // For now, just return success immediately
-    // We'll implement GitHub integration once CORS is working
-    console.log('[save-page] Returning success for URL:', data.url);
+    // Only POST
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 405,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Method not allowed' }),
+      };
+    }
+
+    console.log('[save-page] Processing POST');
+
+    // Parse request body
+    let data;
+    try {
+      data = JSON.parse(event.body);
+    } catch (e) {
+      console.error('[save-page] JSON parse failed:', e.message);
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Invalid JSON', details: e.message }),
+      };
+    }
+
+    // Validate
+    if (!data.url || !data.criticalKeywords || !data.designKeywords) {
+      console.error('[save-page] Missing required fields');
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: 'Missing required fields' }),
+      };
+    }
+
+    console.log('[save-page] ✅ Validation passed:', data.url);
+
+    // For now: just return success
+    // (GitHub integration will come after we confirm this works)
     return {
       statusCode: 200,
       headers: corsHeaders,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         success: true,
-        message: 'Page received successfully',
+        message: 'Submission received',
         data: {
           url: data.url,
-          criticalKeywords: data.criticalKeywords,
-          designKeywords: data.designKeywords
-        }
-      })
+          criticalKeywordsCount: data.criticalKeywords.length,
+          designKeywordsCount: data.designKeywords.length,
+        },
+      }),
     };
   } catch (error) {
-    console.error('[save-page] Error:', error);
+    console.error('[save-page] Unexpected error:', error.message);
     return {
       statusCode: 500,
       headers: corsHeaders,
-      body: JSON.stringify({ error: 'Internal server error', message: error.message })
+      body: JSON.stringify({
+        error: 'Internal server error',
+        message: error.message,
+      }),
     };
   }
 };
-      const options = {
         method: method,
         headers: {
           'Authorization': `token ${githubToken}`,
