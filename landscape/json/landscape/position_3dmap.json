@@ -20422,5 +20422,19 @@
     "_critical_axis_position": null,
     "_dominant_design_practice": "design",
     "_design_axis_position": 0
+  },
+  {
+    "url": "https://criticaldaily.org/index.php?project=208",
+    "sentence": "Amsterdam-based graphic design studio Experimental Jetset, was founded in 1997 by Marieke Stolk, Erwin Brinkers and Danny van den Dungen. They are focused on printed matter and site-specific installat",
+    "x": 3,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T10:32:11.511Z",
+    "timestamp": "2026-01-24T10:32:11.511Z",
+    "source": "new",
+    "_dominant_critical_practice": "critical",
+    "_critical_axis_position": 3,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
   }
 ]
