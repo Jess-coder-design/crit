@@ -20436,5 +20436,47 @@
     "_critical_axis_position": 3,
     "_dominant_design_practice": "design",
     "_design_axis_position": 5
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "Dutch Design Week \n\n     \n     \n     \n     \n     \n     \n     \n     \n     \n     \n      \n\n         \n        window",
+    "x": null,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T11:03:49.505Z",
+    "timestamp": "2026-01-24T11:03:49.505Z",
+    "source": "new",
+    "_dominant_critical_practice": null,
+    "_critical_axis_position": null,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "This route takes you along independent and critical work that reflects on the discipline itself and questions established systems",
+    "x": 3,
+    "y": 1,
+    "z": null,
+    "date": "2026-01-24T11:03:49.505Z",
+    "timestamp": "2026-01-24T11:03:49.505Z",
+    "source": "new",
+    "_dominant_critical_practice": "critical",
+    "_critical_axis_position": 3,
+    "_dominant_design_practice": "work",
+    "_design_axis_position": 1
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "’, DDW reflects on its legacy, showcases today’s creative energy, and explores what design can become",
+    "x": null,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T11:03:49.505Z",
+    "timestamp": "2026-01-24T11:03:49.505Z",
+    "source": "new",
+    "_dominant_critical_practice": null,
+    "_critical_axis_position": null,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
   }
 ]

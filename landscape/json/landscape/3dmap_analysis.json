@@ -23336,5 +23336,37 @@
       "practice"
     ],
     "source": "old"
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "Dutch Design Week \n\n     \n     \n     \n     \n     \n     \n     \n     \n     \n     \n      \n\n         \n        window",
+    "criticalKeywords": [],
+    "designKeywords": [
+      "design"
+    ],
+    "timestamp": "2026-01-24T11:03:48.578Z",
+    "source": "new"
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "This route takes you along independent and critical work that reflects on the discipline itself and questions established systems",
+    "criticalKeywords": [
+      "critical"
+    ],
+    "designKeywords": [
+      "work"
+    ],
+    "timestamp": "2026-01-24T11:03:48.578Z",
+    "source": "new"
+  },
+  {
+    "url": "https://app-api.ddw.nl/routes/independent-critical",
+    "sentence": "’, DDW reflects on its legacy, showcases today’s creative energy, and explores what design can become",
+    "criticalKeywords": [],
+    "designKeywords": [
+      "design"
+    ],
+    "timestamp": "2026-01-24T11:03:48.578Z",
+    "source": "new"
   }
 ]
