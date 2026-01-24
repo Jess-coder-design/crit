@@ -25437,5 +25437,15 @@
     ],
     "timestamp": "2026-01-24T18:50:19.175Z",
     "source": "new"
+  },
+  {
+    "url": "https://www.readingdesign.org/critical-design-faq",
+    "sentence": "403 Forbidden \n   \n   \n  body {\n    background: white;\n  }\n\n  main {\n    position: absolute;\n    top: 50%;\n    left: 50%;\n    transform: translate(-50%, -50%);\n    text-align: center;\n    min-width: 95vw;\n  }\n\n  main h1 {\n    font-weight: 400;\n    font-size: 4",
+    "criticalKeywords": [
+      "position"
+    ],
+    "designKeywords": [],
+    "timestamp": "2026-01-24T18:54:52.976Z",
+    "source": "new"
   }
 ]
