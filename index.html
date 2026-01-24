@@ -1062,12 +1062,21 @@
                         const star = new THREE.Mesh(starGeometry, starMaterial);
                         star.position.copy(position);
                         
-                        scene.add(star);
+                        // Create a group that will make the star face the camera
+                        const starGroup = new THREE.Group();
+                        starGroup.add(star);
+                        starGroup.position.copy(position);
+                        star.position.set(0, 0, 0);
+                        
+                        // Mark the group to always face camera
+                        starGroup.userData.isBillboard = true;
+                        
+                        scene.add(starGroup);
                         
                         // Schedule star removal after 1 day (86400000 ms)
                         const createdTime = new Date();
                         setTimeout(() => {
-                            scene.remove(star);
+                            scene.remove(starGroup);
                             star.geometry.dispose();
                             star.material.dispose();
                         }, 86400000);
@@ -1237,6 +1246,14 @@
             requestAnimationFrame(animate);
             controls.update();
             updateAxisLabelPositions();
+            
+            // Make all billboards (stars) face the camera
+            scene.traverse((object) => {
+                if (object.userData && object.userData.isBillboard) {
+                    object.quaternion.copy(camera.quaternion);
+                }
+            });
+            
             renderer.render(scene, camera);
         }
         animate();
