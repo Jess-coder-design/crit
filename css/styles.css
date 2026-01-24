@@ -373,16 +373,17 @@ body {
 
 .submissions-panel {
     display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding: 0;
-    background: white;
-    border: 1.5px solid #333;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    background: transparent;
+    border: none;
     border-radius: 0;
-    max-width: 300px;
-    max-height: 300px;
+    max-width: calc(100vw - 100px);
+    max-height: 500px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     cursor: auto;
     user-select: none;
     
@@ -395,7 +396,7 @@ body {
 
     transition: opacity 0.35s ease;
     z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: none;
     
     transform: translateX(0px);
 }
@@ -407,7 +408,7 @@ body {
 .submissions-panel.open {
     opacity: 1;
     pointer-events: auto;
-    max-height: 400px;
+    max-height: 500px;
 }
 
 .submissions-panel::-webkit-scrollbar-thumb:hover {
@@ -415,52 +416,46 @@ body {
 }
 
 .submissions-header {
-    padding: 12px;
-    border-bottom: 1.5px solid #ddd;
-    font-weight: bold;
-    color: #333;
-    background: white;
-    position: sticky;
-    top: 0;
+    display: none;
 }
 
 .submission-item {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background: white;
+    border: 1.5px solid #333;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
+    min-width: 180px;
+    max-width: 280px;
+    flex-shrink: 0;
 }
 
 .submission-item:hover {
     background: #FFF9E6;
+    transform: scale(1.05);
 }
 
 .submission-url {
-    font-size: 12px;
+    font-size: 11px;
     color: #0066cc;
     text-decoration: none;
     word-break: break-word;
     margin-bottom: 6px;
     display: block;
+    line-height: 1.4;
 }
 
 .submission-url:hover {
     text-decoration: underline;
 }
 
-.submission-keywords {
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 4px;
-}
-
-.submission-keywords strong {
-    color: #333;
-}
-
-.submission-timestamp {
+.submission-date {
     font-size: 10px;
     color: #999;
+    margin-top: 4px;
 }
 
 .submissions-empty {

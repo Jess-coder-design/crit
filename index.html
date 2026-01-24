@@ -273,21 +273,18 @@
                             return;
                         }
                         
-                        let html = '<div class="submissions-header">New Submissions (' + newSubmissions.length + ')</div>';
+                        let html = '';
                         
                         newSubmissions.forEach(item => {
-                            const url = new URL(item.url);
-                            const domain = url.hostname;
+                            const fullUrl = item.url;
                             const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
                             
-                            console.log('[CRIT] Displaying submission:', domain, item._dominant_critical_practice, item._dominant_design_practice);
+                            console.log('[CRIT] Displaying submission:', fullUrl, timestamp);
                             
                             html += `
                                 <div class="submission-item" data-url="${item.url}" data-sentence="${item.sentence.replace(/"/g, '&quot;')}">
-                                    <a href="${item.url}" target="_blank" class="submission-url">${domain}</a>
-                                    <div class="submission-keywords"><strong>Critical:</strong> ${item._dominant_critical_practice || 'N/A'}</div>
-                                    <div class="submission-keywords"><strong>Design:</strong> ${item._dominant_design_practice || 'N/A'}</div>
-                                    <div class="submission-timestamp">${timestamp}</div>
+                                    <a href="${item.url}" target="_blank" class="submission-url">${fullUrl}</a>
+                                    <div class="submission-date">${timestamp}</div>
                                 </div>
                             `;
                         });
