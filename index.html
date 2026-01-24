@@ -973,7 +973,6 @@
                         const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFF6600, side: THREE.DoubleSide });
                         const star = new THREE.Mesh(starGeometry, starMaterial);
                         star.position.copy(position);
-                        star.position.z -= 0.2;
                         
                         scene.add(star);
                         
