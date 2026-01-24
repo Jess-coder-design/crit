@@ -335,9 +335,9 @@
         scene.background = new THREE.Color(0xffffff);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        // Position camera to look along Z-axis: behind the data, looking forward
-        camera.position.set(0, 0, -8);
-        camera.lookAt(0, 0, 8);  // Look toward positive Z (toward 2026)
+        // Position camera to look toward negative Z (toward 1998)
+        camera.position.set(0, -0.5, 1);
+        camera.lookAt(0, 0, -10);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1180,15 +1180,16 @@
             const wasControlsEnabled = controls.enabled;
             controls.enabled = false;
             
+            // Start from origin (0, 0, 0) looking at it
+            const startPos = new THREE.Vector3(0, 0, 0);
+            
             // Calculate target position (slightly back from the sprite for good viewing angle)
             const targetPos = sprite.position.clone();
             targetPos.z -= 0.5;
             
-            // Start pan animation
-            const startPos = camera.position.clone();
             const startTime = Date.now();
             
-            console.log('[animateToSentence] Starting position:', startPos);
+            console.log('[animateToSentence] Starting position (origin):', startPos);
             console.log('[animateToSentence] Target position:', targetPos);
             
             function panCamera() {
@@ -1497,9 +1498,9 @@
     </script>
 
     <!-- Glow overlay for orange blur effect at edges (for normal screen size) -->
-    <!-- <div class="glow-overlay"></div> -->
+    <div class="glow-overlay"></div>
     
     <!-- Screen box with orange blur outline -->
-    <div class="screen-box-overlay"></div>
+    <!-- <div class="screen-box-overlay"></div> -->
 </body>
 </html>
