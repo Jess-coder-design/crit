@@ -1323,6 +1323,22 @@
         }
 
         // ============================================
+        // SEARCH HELPER - Find sentences by keyword
+        // ============================================
+        
+        window.searchSentences = function(keyword) {
+            console.log('[searchSentences] Searching for:', keyword);
+            const matches = allSentenceSprites.filter(s => 
+                s.userData.text.toLowerCase().includes(keyword.toLowerCase())
+            );
+            console.log('[searchSentences] Found', matches.length, 'matches:');
+            matches.forEach((s, i) => {
+                console.log((i+1) + '. ' + s.userData.text);
+            });
+            return matches;
+        };
+
+        // ============================================
         // PRESET SEQUENCES - Call from console
         // ============================================
         
