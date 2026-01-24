@@ -20884,5 +20884,47 @@
     "_critical_axis_position": 8,
     "_dominant_design_practice": null,
     "_design_axis_position": null
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "Qevh7XvigO5BKdL54qdLwT9f94mhkDggAwe5p8oG',cUPMDTk:\"\\/collection\\/terms\\/critical-design",
+    "x": 3,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T19:05:59.443Z",
+    "timestamp": "2026-01-24T19:05:59.443Z",
+    "source": "new",
+    "_dominant_critical_practice": "critical",
+    "_critical_axis_position": 3,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "S8\",cFPWv: 'b',cITimeS: '1769281558',cTplC:0,cTplV:5,cTplB: '0',fa:\"\\/collection\\/terms\\/critical-design",
+    "x": 3,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T19:05:59.443Z",
+    "timestamp": "2026-01-24T19:05:59.443Z",
+    "source": "new",
+    "_dominant_critical_practice": "critical",
+    "_critical_axis_position": 3,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "replaceState(null, null,\"\\/collection\\/terms\\/critical-design",
+    "x": 3,
+    "y": 5,
+    "z": null,
+    "date": "2026-01-24T19:05:59.443Z",
+    "timestamp": "2026-01-24T19:05:59.443Z",
+    "source": "new",
+    "_dominant_critical_practice": "critical",
+    "_critical_axis_position": 3,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 5
   }
 ]
