@@ -763,7 +763,7 @@
                 const words = displayText.split(' ');
                 let line = '';
                 let lines = [];
-                const maxWidth = canvas.width - 200;  // Give more space for larger fonts
+                const maxWidth = canvas.width - 50;  // Minimal margin for maximum text width
                 
                 for (let word of words) {
                     const testLine = line + (line ? ' ' : '') + word;
@@ -949,27 +949,36 @@
                     
                     // Add star indicator for new submissions (expires after 1 day)
                     if (point.source === 'new') {
-                        const starGeometry = new THREE.BufferGeometry();
-                        const starPoints = [];
-                        const numPoints = 15;  // 15-pointed star
-                        const outerRadius = 0.3;
-                        const innerRadius = 0.15;
+                        // Create small filled 5-pointed star
+                        const shape = new THREE.Shape();
+                        const numPoints = 5;
+                        const outerRadius = 0.08;
+                        const innerRadius = 0.035;
                         
                         for (let i = 0; i < numPoints * 2; i++) {
-                            const angle = (i / (numPoints * 2)) * Math.PI * 2;
+                            const angle = (i / (numPoints * 2)) * Math.PI * 2 - Math.PI / 2;
                             const radius = i % 2 === 0 ? outerRadius : innerRadius;
-                            starPoints.push(
-                                Math.cos(angle) * radius,
-                                Math.sin(angle) * radius,
-                                0
-                            );
+                            const x = Math.cos(angle) * radius;
+                            const y = Math.sin(angle) * radius;
+                            
+                            if (i === 0) {
+                                shape.moveTo(x, y);
+                            } else {
+                                shape.lineTo(x, y);
+                            }
                         }
+                        shape.lineTo(Math.cos(-Math.PI / 2) * outerRadius, Math.sin(-Math.PI / 2) * outerRadius);
                         
-                        starGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starPoints), 3));
-                        const starMaterial = new THREE.LineBasicMaterial({ color: 0xFFAA00, linewidth: 2 });
-                        const star = new THREE.Line(starGeometry, starMaterial);
+                        const starGeometry = new THREE.ShapeGeometry(shape);
+                        const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFF6600, side: THREE.DoubleSide });
+                        const star = new THREE.Mesh(starGeometry, starMaterial);
                         star.position.copy(position);
-                        star.position.z -= 0.2;  // Slightly in front
+                        star.position.z -= 0.2;
+                        
+                        // Position star on top right corner
+                        star.position.x += 0.55;
+                        star.position.y += 0.55;
+                        
                         scene.add(star);
                         
                         // Schedule star removal after 1 day (86400000 ms)
