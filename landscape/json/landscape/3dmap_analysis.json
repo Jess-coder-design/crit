@@ -25447,5 +25447,41 @@
     "designKeywords": [],
     "timestamp": "2026-01-24T18:54:52.976Z",
     "source": "new"
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "Qevh7XvigO5BKdL54qdLwT9f94mhkDggAwe5p8oG',cUPMDTk:\"\\/collection\\/terms\\/critical-design",
+    "criticalKeywords": [
+      "critical"
+    ],
+    "designKeywords": [
+      "design"
+    ],
+    "timestamp": "2026-01-24T19:05:58.549Z",
+    "source": "new"
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "S8\",cFPWv: 'b',cITimeS: '1769281558',cTplC:0,cTplV:5,cTplB: '0',fa:\"\\/collection\\/terms\\/critical-design",
+    "criticalKeywords": [
+      "critical"
+    ],
+    "designKeywords": [
+      "design"
+    ],
+    "timestamp": "2026-01-24T19:05:58.549Z",
+    "source": "new"
+  },
+  {
+    "url": "https://www.moma.org/collection/terms/critical-design",
+    "sentence": "replaceState(null, null,\"\\/collection\\/terms\\/critical-design",
+    "criticalKeywords": [
+      "critical"
+    ],
+    "designKeywords": [
+      "design"
+    ],
+    "timestamp": "2026-01-24T19:05:58.549Z",
+    "source": "new"
   }
 ]
