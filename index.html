@@ -1702,6 +1702,53 @@
             line.geometry.attributes.position.needsUpdate = true;
         }
         
+        // Function to pan camera to a specific sentence
+        function panToSentence(searchText) {
+            const targetSprite = sentenceSprites.find(sprite => 
+                sprite.userData.text && sprite.userData.text.includes(searchText)
+            );
+            
+            if (targetSprite) {
+                const targetPos = targetSprite.position.clone();
+                const cameraDistance = 40;
+                const direction = targetPos.clone().normalize();
+                const newCameraPos = targetPos.clone().add(direction.multiplyScalar(cameraDistance));
+                
+                // Animate camera movement
+                const startPos = camera.position.clone();
+                const startTime = Date.now();
+                const duration = 2000; // 2 seconds
+                
+                const animateCamera = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing function (ease-in-out)
+                    const easeProgress = progress < 0.5 
+                        ? 2 * progress * progress 
+                        : -1 + (4 - 2 * progress) * progress;
+                    
+                    camera.position.lerpVectors(startPos, newCameraPos, easeProgress);
+                    camera.lookAt(targetPos);
+                    controls.target.copy(targetPos);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateCamera);
+                    }
+                };
+                
+                animateCamera();
+                console.log('Panning to: ' + searchText);
+            }
+        }
+        
+        // Pan to curious bodyminds sentence with 'B' key
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'b') {
+                panToSentence('curious bodyminds');
+            }
+        });
+        
         // Toggle drawing mode with 'D' key
         window.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 'd') {
