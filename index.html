@@ -44,6 +44,22 @@
         let activeKeywordFilters = new Set(); // Set of active keyword filters for multi-select
         let allSentenceSprites = [];
 
+        // ============================================
+        // SEARCH HELPER - Find sentences by keyword
+        // ============================================
+        
+        window.searchSentences = function(keyword) {
+            console.log('[searchSentences] Searching for:', keyword);
+            const matches = allSentenceSprites.filter(s => 
+                s.userData && s.userData.text && s.userData.text.toLowerCase().includes(keyword.toLowerCase())
+            );
+            console.log('[searchSentences] Found', matches.length, 'matches:');
+            matches.forEach((s, i) => {
+                console.log((i+1) + '. ' + s.userData.text);
+            });
+            return matches;
+        };
+
         // Load colors and keywords first, then proceed with data loading
         Promise.all([
             fetch('landscape/json/landscape/keywords.json').then(r => r.json()),
@@ -1344,9 +1360,9 @@
         
         window.playDesignCritiqueSentences = function() {
             const sentences = [
-                "With a methodology merging design critiques, ethnography, speculative fabulation, and research through design, he first investigates how injustice is perpetuated through design artifacts and then collaborates with communities to create more equitable alternatives.",
-                "Critical design and artistic research grounded in textual engagement, creative writing, prototyping, and meticulous documentation as knowledge production.",
-                "His designs not only raise awareness but also encourage critical thinking, helping us discover what we value and determine the steps we want to take into the future."
+                "His designs not only raise awareness but also encourage critical thinking, helping us discover what we value and determine the steps we want to take into the future.",
+                "Participatory design, critical design, service design, user centred design, empathic design, these are all regularly discussed paradigms and perspectives wherein techniques such as iterative design and gender mainstreaming are used to force the designer to intentionally incorporate the perspectives of the user within the very product itself.",
+                "Defining Critical Making by Garnet Hertz - In this talk, Hertz provides overview of the concept of critical making, a concept where critical thinking is combined with hands-on fabrication to build devices that are designed to encourage discussion around social topics."
             ];
             // 4s delay, 2s pan time, 5s hold on each sentence
             playSequence(sentences, 2000, 5000, 4000);
