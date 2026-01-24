@@ -1251,6 +1251,7 @@
                 
                 const sentenceText = sentenceArray[currentIndex];
                 console.log('[playSequence] Playing sentence', (currentIndex + 1) + '/' + sentenceArray.length);
+                console.log('[playSequence] Searching for:', sentenceText.substring(0, 80));
                 
                 // Find the sprite
                 const sprite = allSentenceSprites.find(s => 
@@ -1259,11 +1260,19 @@
                 );
                 
                 if (!sprite) {
-                    console.warn('[playSequence] Sentence not found:', sentenceText.substring(0, 50));
+                    console.warn('[playSequence] Sentence not found:', sentenceText.substring(0, 80));
+                    console.log('[playSequence] Available sprites:', allSentenceSprites.length);
+                    // Log first few sentences for debugging
+                    console.log('[playSequence] Sample sentences:');
+                    allSentenceSprites.slice(0, 5).forEach((s, i) => {
+                        console.log('  ' + i + ':', s.userData.text.substring(0, 80));
+                    });
                     currentIndex++;
-                    playNext();
+                    setTimeout(playNext, 500); // Small delay before trying next
                     return;
                 }
+                
+                console.log('[playSequence] Found sprite at position:', sprite.position);
                 
                 // Disable orbit controls
                 controls.enabled = false;
@@ -1285,6 +1294,7 @@
                     if (progress < 1) {
                         requestAnimationFrame(panCamera);
                     } else {
+                        console.log('[playSequence] Pan complete, holding...');
                         // Pan complete, hold for holdDuration then play next
                         const holdStartTime = Date.now();
                         
@@ -1295,6 +1305,7 @@
                             if (holdElapsed < holdDuration) {
                                 requestAnimationFrame(holdAndNext);
                             } else {
+                                console.log('[playSequence] Hold complete, moving to next...');
                                 currentIndex++;
                                 playNext();
                             }
