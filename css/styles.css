@@ -343,7 +343,7 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 68px;
+    bottom: 44px;
     left: 34px;
     right: auto;
     display: flex;
@@ -365,6 +365,7 @@ body {
     transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 1001;
     position: relative;
+    text-align: left;
 }
 
 #submissionsToggle:hover {
@@ -428,8 +429,8 @@ body {
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease;
-    min-width: 160px;
-    max-width: 220px;
+    min-width: 320px;
+    max-width: 400px;
     flex-shrink: 0;
     text-align: left;
 }
