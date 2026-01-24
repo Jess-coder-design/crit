@@ -1708,18 +1708,36 @@
             console.log('Searching for:', searchText);
             console.log('Available sprites:', allSentenceSprites.length);
             
-            const targetSprite = allSentenceSprites.find(sprite => 
-                sprite.userData.text && sprite.userData.text.toLowerCase().includes(searchText.toLowerCase())
-            );
+            // Normalize search text for matching (remove extra whitespace)
+            const normalizedSearch = searchText.toLowerCase().trim();
+            
+            const targetSprite = allSentenceSprites.find(sprite => {
+                if (!sprite.userData.text) return false;
+                const normalizedText = sprite.userData.text.toLowerCase();
+                return normalizedText.includes(normalizedSearch);
+            });
             
             if (!targetSprite) {
                 console.log('Sentence not found: ' + searchText);
-                // Log a few sentences to help debug
+                // Log more sentences to help debug
                 if (allSentenceSprites.length > 0) {
-                    console.log('First few available sentences:');
-                    allSentenceSprites.slice(0, 3).forEach((s, i) => {
-                        console.log(i + ':', s.userData.text.substring(0, 80));
+                    console.log('Sample sentences from sprites:');
+                    allSentenceSprites.slice(0, 10).forEach((s, i) => {
+                        const preview = s.userData.text.substring(0, 100).replace(/\n/g, ' ');
+                        if (preview.toLowerCase().includes('curious') || 
+                            preview.toLowerCase().includes('bodyminds') ||
+                            preview.toLowerCase().includes('speculative')) {
+                            console.log(i + ': [MATCH?] ' + preview);
+                        }
                     });
+                    // Also search through all
+                    const allMatches = allSentenceSprites.filter(s => 
+                        s.userData.text.toLowerCase().includes('curious')
+                    );
+                    console.log('Total sprites with "curious":', allMatches.length);
+                    if (allMatches.length > 0) {
+                        console.log('Found "curious" in:', allMatches[0].userData.text.substring(0, 150));
+                    }
                 }
                 return;
             }
