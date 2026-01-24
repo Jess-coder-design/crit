@@ -1231,6 +1231,99 @@
             panCamera();
         }
 
+        // ============================================
+        // SENTENCE SEQUENCE ANIMATION
+        // Usage: playSequence([sentence1, sentence2, ...], panDuration, holdDuration)
+        // ============================================
+        
+        function playSequence(sentenceArray, panDuration = 3000, holdDuration = 3000) {
+            console.log('[playSequence] Starting sequence with', sentenceArray.length, 'sentences');
+            
+            let currentIndex = 0;
+            
+            function playNext() {
+                if (currentIndex >= sentenceArray.length) {
+                    console.log('[playSequence] Sequence complete!');
+                    controls.enabled = true;
+                    return;
+                }
+                
+                const sentenceText = sentenceArray[currentIndex];
+                console.log('[playSequence] Playing sentence', (currentIndex + 1) + '/' + sentenceArray.length);
+                
+                // Find the sprite
+                const sprite = allSentenceSprites.find(s => 
+                    s.userData.text.includes(sentenceText) || 
+                    s.userData.text.toLowerCase().includes(sentenceText.toLowerCase())
+                );
+                
+                if (!sprite) {
+                    console.warn('[playSequence] Sentence not found:', sentenceText.substring(0, 50));
+                    currentIndex++;
+                    playNext();
+                    return;
+                }
+                
+                // Disable orbit controls
+                controls.enabled = false;
+                
+                // Start from previous position or origin
+                const startPos = camera.position.clone();
+                const targetPos = sprite.position.clone();
+                targetPos.z -= 0.5;
+                
+                const startTime = Date.now();
+                
+                function panCamera() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / panDuration, 1);
+                    
+                    camera.position.lerpVectors(startPos, targetPos, progress);
+                    camera.lookAt(sprite.position);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(panCamera);
+                    } else {
+                        // Pan complete, hold for holdDuration then play next
+                        const holdStartTime = Date.now();
+                        
+                        function holdAndNext() {
+                            const holdElapsed = Date.now() - holdStartTime;
+                            camera.lookAt(sprite.position);
+                            
+                            if (holdElapsed < holdDuration) {
+                                requestAnimationFrame(holdAndNext);
+                            } else {
+                                currentIndex++;
+                                playNext();
+                            }
+                        }
+                        
+                        holdAndNext();
+                    }
+                }
+                
+                panCamera();
+            }
+            
+            playNext();
+        }
+
+        // ============================================
+        // PRESET SEQUENCES - Call from console
+        // ============================================
+        
+        window.playDesignCritiqueSentences = function() {
+            const sentences = [
+                "With a methodology merging design critiques, ethnography, speculative fabulation, and research through design, he first investigates how injustice is perpetuated through design artifacts and then collaborates with communities to create more equitable alternatives.",
+                "Critical design and artistic research grounded in textual engagement, creative writing, prototyping, and meticulous documentation as knowledge production.",
+                "His designs not only raise awareness but also encourage critical thinking, helping us discover what we value and determine the steps we want to take into the future."
+            ];
+            playSequence(sentences, 3000, 4000);
+        };
+        
+        console.log('[CRIT] Animation ready! Type: playDesignCritiqueSentences() to play the sequence');
+
         // Handle window resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
