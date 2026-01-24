@@ -349,6 +349,7 @@ body {
     display: flex;
     align-items: center;
     flex-direction: row;
+    gap: 8px;
     z-index: 1000;
 }
 
