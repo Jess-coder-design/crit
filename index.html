@@ -1236,8 +1236,9 @@
         // Usage: playSequence([sentence1, sentence2, ...], panDuration, holdDuration)
         // ============================================
         
-        function playSequence(sentenceArray, panDuration = 3000, holdDuration = 3000) {
+        function playSequence(sentenceArray, panDuration = 3000, holdDuration = 3000, initialDelay = 4000) {
             console.log('[playSequence] Starting sequence with', sentenceArray.length, 'sentences');
+            console.log('[playSequence] Animation starts in', initialDelay + 'ms');
             
             let currentIndex = 0;
             
@@ -1306,7 +1307,8 @@
                 panCamera();
             }
             
-            playNext();
+            // Start with initial delay to allow inspector to close
+            setTimeout(playNext, initialDelay);
         }
 
         // ============================================
