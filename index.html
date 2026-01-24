@@ -630,6 +630,7 @@
 
         let points = [];
         let positionDataMap = {};
+        let starGroups = [];  // Track all star groups for camera-facing updates
 
         // Load data AFTER colors are loaded (colors are loaded above)
         // Add a small delay to ensure colors are loaded first
@@ -1060,18 +1061,14 @@
                         const starGeometry = new THREE.ShapeGeometry(shape);
                         const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFF6600, side: THREE.DoubleSide });
                         const star = new THREE.Mesh(starGeometry, starMaterial);
-                        star.position.copy(position);
                         
                         // Create a group that will make the star face the camera
                         const starGroup = new THREE.Group();
                         starGroup.add(star);
                         starGroup.position.copy(position);
-                        star.position.set(0, 0, 0);
-                        
-                        // Mark the group to always face camera
-                        starGroup.userData.isBillboard = true;
                         
                         scene.add(starGroup);
+                        starGroups.push(starGroup);  // Track for camera-facing updates
                         
                         // Schedule star removal after 1 day (86400000 ms)
                         const createdTime = new Date();
@@ -1079,6 +1076,7 @@
                             scene.remove(starGroup);
                             star.geometry.dispose();
                             star.material.dispose();
+                            starGroups = starGroups.filter(sg => sg !== starGroup);
                         }, 86400000);
                     }
                 }
@@ -1247,11 +1245,9 @@
             controls.update();
             updateAxisLabelPositions();
             
-            // Make all billboards (stars) face the camera
-            scene.traverse((object) => {
-                if (object.userData && object.userData.isBillboard) {
-                    object.quaternion.copy(camera.quaternion);
-                }
+            // Make all star groups face the camera
+            starGroups.forEach(starGroup => {
+                starGroup.quaternion.copy(camera.quaternion);
             });
             
             renderer.render(scene, camera);
