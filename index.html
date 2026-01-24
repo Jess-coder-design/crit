@@ -112,7 +112,8 @@
                 baseKeywords.forEach(baseKeyword => {
                     if (colorsData.criticalgroup[baseKeyword]) {
                         const data = colorsData.criticalgroup[baseKeyword];
-                        keywordsHtml += `<span class="keyword" data-keyword="${baseKeyword.toLowerCase()}" style="background-color: ${data.color}; cursor: pointer;">${baseKeyword}</span>`;
+                        const safeKeyword = baseKeyword.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        keywordsHtml += `<span class="keyword" data-keyword="${baseKeyword.toLowerCase()}" style="background-color: ${data.color}; cursor: pointer;">${safeKeyword}</span>`;
                     }
                 });
             }
@@ -121,7 +122,8 @@
                 baseKeywords.forEach(baseKeyword => {
                     if (colorsData.designgroup[baseKeyword]) {
                         const data = colorsData.designgroup[baseKeyword];
-                        keywordsHtml += `<span class="keyword" data-keyword="${baseKeyword.toLowerCase()}" style="background-color: ${data.color}; cursor: pointer;">${baseKeyword}</span>`;
+                        const safeKeyword = baseKeyword.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        keywordsHtml += `<span class="keyword" data-keyword="${baseKeyword.toLowerCase()}" style="background-color: ${data.color}; cursor: pointer;">${safeKeyword}</span>`;
                     }
                 });
             }
@@ -1394,7 +1396,104 @@
             playSequence(sentences, 2000, holdDurations, 4000);
         };
         
+        // ============================================
+        // AXIS EXPLORATION ANIMATION
+        // Shows axes from origin, then pans along each to show labels
+        // ============================================
+        
+        window.playAxisExploration = function(panDuration = 4000, holdDuration = 3000) {
+            console.log('[playAxisExploration] Starting axis exploration');
+            
+            const axisLength = 2.0 * 2.5; // 5.0
+            const spreadFactor = 2.5;
+            
+            // Define camera positions for each axis
+            const axisPositions = [
+                {
+                    name: 'Origin',
+                    pos: new THREE.Vector3(0, 0, 2),
+                    target: new THREE.Vector3(0, 0, 0),
+                    hold: 2000
+                },
+                {
+                    name: 'X-Axis',
+                    pos: new THREE.Vector3(axisLength * 0.6, 0, -spreadFactor + 1),
+                    target: new THREE.Vector3(0, 0, -spreadFactor),
+                    hold: holdDuration
+                },
+                {
+                    name: 'Y-Axis',
+                    pos: new THREE.Vector3(0, axisLength * 0.6, -spreadFactor + 1),
+                    target: new THREE.Vector3(0, 0, -spreadFactor),
+                    hold: holdDuration
+                },
+                {
+                    name: 'Z-Axis',
+                    pos: new THREE.Vector3(1, 0, axisLength * 0.6),
+                    target: new THREE.Vector3(0, 0, 0),
+                    hold: holdDuration
+                }
+            ];
+            
+            let currentStep = 0;
+            controls.enabled = false;
+            
+            function playNextAxis() {
+                if (currentStep >= axisPositions.length) {
+                    console.log('[playAxisExploration] Exploration complete!');
+                    controls.enabled = true;
+                    return;
+                }
+                
+                const step = axisPositions[currentStep];
+                console.log('[playAxisExploration] Moving to', step.name);
+                
+                const startPos = camera.position.clone();
+                const targetPos = step.pos.clone();
+                const targetLookAt = step.target.clone();
+                const startTime = Date.now();
+                
+                function panAxis() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / panDuration, 1);
+                    
+                    // Lerp camera position
+                    camera.position.lerpVectors(startPos, targetPos, progress);
+                    // Smooth camera lookAt
+                    camera.lookAt(targetLookAt);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(panAxis);
+                    } else {
+                        console.log('[playAxisExploration] Pan complete, holding at', step.name);
+                        const holdStartTime = Date.now();
+                        
+                        function holdAxis() {
+                            const holdElapsed = Date.now() - holdStartTime;
+                            camera.lookAt(targetLookAt);
+                            
+                            if (holdElapsed < step.hold) {
+                                requestAnimationFrame(holdAxis);
+                            } else {
+                                console.log('[playAxisExploration] Hold complete, moving to next axis');
+                                currentStep++;
+                                playNextAxis();
+                            }
+                        }
+                        
+                        holdAxis();
+                    }
+                }
+                
+                panAxis();
+            }
+            
+            // Start with small initial delay
+            setTimeout(playNextAxis, 500);
+        };
+        
         console.log('[CRIT] Animation ready! Type: playDesignCritiqueSentences() to play the sequence');
+        console.log('[CRIT] Axis exploration! Type: playAxisExploration() to explore the axes');
 
         // Handle window resize
         window.addEventListener('resize', () => {
