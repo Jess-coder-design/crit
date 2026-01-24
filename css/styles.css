@@ -85,6 +85,12 @@ body {
     height: 100%;
     z-index: 999;
     pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+#axisLabelsOverlay.hidden-on-hover {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .axis-label-item {
