@@ -343,7 +343,7 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 49px;
+    bottom: 68px;
     left: 34px;
     right: auto;
     display: flex;
@@ -431,6 +431,7 @@ body {
     min-width: 160px;
     max-width: 220px;
     flex-shrink: 0;
+    text-align: left;
 }
 
 .submission-item:hover {
