@@ -75,6 +75,7 @@ async function handleAddButtonClick() {
     const urlExists = savedPages.some(page => page.url === currentUrl);
     if (urlExists) {
       console.log('URL already exists in saved list:', currentUrl);
+      showMessage('Already in the Map!', 'already');
       return;
     }
     
@@ -190,6 +191,7 @@ async function handleAddButtonClick() {
           (response) => {
             if (response && response.success) {
               console.log('✓ Page submitted successfully:', response.data);
+              showMessage('Success!', 'success');
             } else {
               console.error('✗ Failed to submit page:', response?.error || 'Unknown error');
             }
@@ -598,3 +600,51 @@ function highlightDesigners() {
     .catch(error => console.error('Error loading designers.json:', error));
 }
 
+// Show feedback message above the Add button
+function showMessage(text, type) {
+  // Create message element
+  const message = document.createElement('div');
+  message.textContent = text;
+  message.style.cssText = `
+    position: fixed;
+    bottom: 64px;
+    left: 20px;
+    padding: 8px 12px;
+    font-family: "PT Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #FF6600;
+    background-color: white;
+    border: 1px solid #FF6600;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2147483647;
+    animation: fadeIn 0.3s ease-in-out;
+  `;
+  
+  document.documentElement.appendChild(message);
+  
+  // Remove after 2 seconds
+  setTimeout(() => {
+    message.remove();
+  }, 2000);
+}
+
+// Add animation keyframes
+if (!document.getElementById('crit-message-styles')) {
+  const style = document.createElement('style');
+  style.id = 'crit-message-styles';
+  style.textContent = `
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
