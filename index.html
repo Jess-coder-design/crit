@@ -171,11 +171,24 @@
                             sprite.visible = hasAllKeywords;
                         });
                         
-                        // Also filter submission items to match visible sentences
+                        // Also filter submission items to match keyword filters
                         submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
-                            const sentenceText = item.dataset.sentence;
-                            const sentenceVisible = allSentenceSprites.some(s => s.userData.text === sentenceText && s.visible);
-                            item.style.display = sentenceVisible ? '' : 'none';
+                            const criticalPractice = item.querySelector('.submission-keywords')?.textContent.match(/Critical: (.+?)(?:\n|$)/)?.[1]?.trim();
+                            const designPractice = item.querySelectorAll('.submission-keywords')[1]?.textContent.match(/Design: (.+?)(?:\n|$)/)?.[1]?.trim();
+                            
+                            // Check if submission's keywords match all selected filters
+                            const matchesFilter = Array.from(activeKeywordFilters).every(selectedKeyword => {
+                                const criLower = criticalPractice?.toLowerCase() || '';
+                                const desPower = designPractice?.toLowerCase() || '';
+                                const selectedLower = selectedKeyword.toLowerCase();
+                                
+                                const baseKeywordCrit = variationToBase[criLower] || criLower;
+                                const baseKeywordDes = variationToBase[desPower] || desPower;
+                                
+                                return baseKeywordCrit === selectedLower || baseKeywordDes === selectedLower;
+                            });
+                            
+                            item.style.display = matchesFilter ? '' : 'none';
                         });
                         
                         // Style active keywords
