@@ -1048,6 +1048,8 @@
                     closestSprite.material.depthTest = false;
                     closestSprite.material.needsUpdate = true;
                     closestSprite.renderOrder = 999;
+                    // Hide axis labels while hovering over a sentence
+                    document.getElementById('axisLabelsOverlay').classList.add('hidden-on-hover');
                 }
             });
 
@@ -1060,6 +1062,8 @@
                     hoveredSprite.renderOrder = 0;
                     hoveredSprite = null;
                 }
+                // Show axis labels again when mouse leaves
+                document.getElementById('axisLabelsOverlay').classList.remove('hidden-on-hover');
             });
             
             // Track mouse movement to distinguish click from drag

@@ -87,6 +87,10 @@ body {
     pointer-events: none;
 }
 
+#axisLabelsOverlay.hidden-on-hover {
+    display: none;
+}
+
 .axis-label-item {
     position: absolute;
     font-family: "PT Sans", sans-serif;
