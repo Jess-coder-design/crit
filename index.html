@@ -1705,7 +1705,7 @@
         // Function to pan camera to a specific sentence
         // Usage: panToSentence('curious bodyminds'); or panToSentence('speculative world-making', 2500, 50);
         function panToSentence(searchText, duration = 2000, distance = 40) {
-            const targetSprite = sentenceSprites.find(sprite => 
+            const targetSprite = allSentenceSprites.find(sprite => 
                 sprite.userData.text && sprite.userData.text.includes(searchText)
             );
             
