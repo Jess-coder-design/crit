@@ -335,8 +335,9 @@
         scene.background = new THREE.Color(0xffffff);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 0, -1);
-        camera.lookAt(-1, 0, 0);
+        // Position camera to look along Z-axis: behind the data, looking forward
+        camera.position.set(0, 0, -8);
+        camera.lookAt(0, 0, 8);  // Look toward positive Z (toward 2026)
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -401,6 +402,35 @@
                     labelData.element.style.display = 'block';
                 }
             });
+            
+            // DIAGNOSTIC: Create a visual marker at (0,0) for debugging (commented out)
+            /*
+            if (!document.getElementById('origin-marker')) {
+                const marker = document.createElement('div');
+                marker.id = 'origin-marker';
+                marker.style.position = 'fixed';
+                marker.style.width = '10px';
+                marker.style.height = '10px';
+                marker.style.backgroundColor = 'red';
+                marker.style.borderRadius = '50%';
+                marker.style.pointerEvents = 'none';
+                marker.style.zIndex = '9999';
+                marker.style.transform = 'translate(-50%, -50%)';
+                marker.title = '(0,0) origin point';
+                document.body.appendChild(marker);
+            }
+            
+            const marker = document.getElementById('origin-marker');
+            // X and Y axes now intersect at (0, 0, -spreadFactor)
+            const spreadFactor = 2.5;
+            const originWorldPos = new THREE.Vector3(0, 0, -spreadFactor);
+            const originScreenPos = originWorldPos.clone();
+            originScreenPos.project(camera);
+            const originXPercent = (originScreenPos.x + 1) / 2 * 100;
+            const originYPercent = (1 - originScreenPos.y) / 2 * 100;
+            marker.style.left = originXPercent + '%';
+            marker.style.top = originYPercent + '%';
+            */
         }
 
         // Custom controls: right-click + drag to rotate, scroll to zoom, left-click + drag to pan
@@ -443,54 +473,56 @@
         const axisColor = 0x333333;
         const axisWidth = 2;
 
-        // X-axis line (red)
+        // X-axis line (red) - passes through (0, 0)
         const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(-axisLength, -spreadFactor, -spreadFactor),
-            new THREE.Vector3(axisLength, -spreadFactor, -spreadFactor)
+            new THREE.Vector3(-axisLength, 0, -spreadFactor),
+            new THREE.Vector3(axisLength, 0, -spreadFactor)
         ]);
         const xAxisMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: axisWidth });
         const xAxis = new THREE.Line(xAxisGeometry, xAxisMaterial);
         scene.add(xAxis);
 
-        // Y-axis line (green)
+        // Y-axis line (green) - passes through (0, 0)
         const yAxisGeometry = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(-spreadFactor, -axisLength, -spreadFactor),
-            new THREE.Vector3(-spreadFactor, axisLength, -spreadFactor)
+            new THREE.Vector3(0, -axisLength, -spreadFactor),
+            new THREE.Vector3(0, axisLength, -spreadFactor)
         ]);
         const yAxisMaterial = new THREE.LineBasicMaterial({ color: 0x00aa00, linewidth: axisWidth });
         const yAxis = new THREE.Line(yAxisGeometry, yAxisMaterial);
         scene.add(yAxis);
 
-        // Z-axis line (blue)
-        const zAxisGeometry = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(-spreadFactor, -spreadFactor, -axisLength),
-            new THREE.Vector3(-spreadFactor, -spreadFactor, axisLength)
-        ]);
-        const zAxisMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff, linewidth: axisWidth });
-        const zAxis = new THREE.Line(zAxisGeometry, zAxisMaterial);
+        // Z-axis line (blue) - passes through (0, 0) origin where X and Y intersect
+        // Use a cylinder instead of line for better visibility
+        const zAxisRadius = 0.008;  // Match visual thickness of line axes
+        const zAxisGeometry = new THREE.CylinderGeometry(zAxisRadius, zAxisRadius, 5, 8);
+        const zAxisMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+        const zAxis = new THREE.Mesh(zAxisGeometry, zAxisMaterial);
+        zAxis.position.set(0, 0, 0);
+        zAxis.rotation.x = Math.PI / 2;  // Rotate to align with Z-axis
         scene.add(zAxis);
 
-        // Add tick marks for axes
+        // Add tick marks for axes (commented out)
+        /*
         const tickSize = 0.15;
         const tickGeometries = [];
 
-        // X-axis ticks
+        // X-axis ticks (at y=0)
         for (let i = 0; i <= 8; i++) {
             const x = -axisLength + (i / 8) * 2 * axisLength;
             const tickGeo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(x, -spreadFactor, -spreadFactor),
-                new THREE.Vector3(x, -spreadFactor - tickSize, -spreadFactor)
+                new THREE.Vector3(x, 0, -spreadFactor),
+                new THREE.Vector3(x, -tickSize, -spreadFactor)
             ]);
             const tickLine = new THREE.Line(tickGeo, new THREE.LineBasicMaterial({ color: 0x999999, linewidth: 1 }));
             scene.add(tickLine);
         }
 
-        // Y-axis ticks
+        // Y-axis ticks (at x=0)
         for (let i = 0; i <= 18; i++) {
             const y = -axisLength + (i / 18) * 2 * axisLength;
             const tickGeo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-spreadFactor, y, -spreadFactor),
-                new THREE.Vector3(-spreadFactor - tickSize, y, -spreadFactor)
+                new THREE.Vector3(0, y, -spreadFactor),
+                new THREE.Vector3(-tickSize, y, -spreadFactor)
             ]);
             const tickLine = new THREE.Line(tickGeo, new THREE.LineBasicMaterial({ color: 0x999999, linewidth: 1 }));
             scene.add(tickLine);
@@ -506,6 +538,7 @@
             const tickLine = new THREE.Line(tickGeo, new THREE.LineBasicMaterial({ color: 0x999999, linewidth: 1 }));
             scene.add(tickLine);
         }
+        */
 
         let points = [];
         let positionDataMap = {};
@@ -550,48 +583,71 @@
             
             console.log('Year range:', minYear, 'to', maxYear);
             console.log(`Loaded ${positionData.length} data points (${yearsWithData.length} with years)`);
+            console.log('Sample z values:', yearsWithData.slice(0, 20));
             
             // Create axis labels now that we have minYear and maxYear
             // Spread factor for positioning (same as data points)
             const spreadFactor = 2.5;
             
-            // Add X-axis (Critical) labels along the bottom, mapped to world positions for proper projection
-            const criticalLabels = [
-                "question", "critique", "critical", "interrogate", 
-                "problematize", "reframe", "reflect", "position", "post-critical"
-            ];
-            criticalLabels.forEach((text, idx) => {
-                const x = -1.0 * spreadFactor + (idx / (criticalLabels.length - 1)) * 2 * spreadFactor;
-                const worldPos = new THREE.Vector3(x, -spreadFactor - 0.35, -spreadFactor);
-                createAxisLabelMoving(text, worldPos);
-            });
-            
-            // Add Y-axis (Design) labels at left side, mapped to world positions for proper projection
-            const designLabels = [
-                "work", "craft", "practice", "design", "project", 
-                "plan", "intend", "iterate", "explore", "inquire", 
-                "analyze", "evaluate", "investigate", "conceptualize", 
-                "narrate", "discourse", "dialecticize", "systematize", "theorize"
-            ];
-            designLabels.forEach((text, idx) => {
-                const y = -1.0 * spreadFactor + (idx / (designLabels.length - 1)) * 2 * spreadFactor;
-                const worldPos = new THREE.Vector3(-spreadFactor - 0.35, y, -spreadFactor);
-                createAxisLabelMoving(text, worldPos);
-            });
-            
-            // Add Z-axis (Year) labels along right side, evenly spaced
-            const yearStart = Math.round(minYear);
-            const yearEnd = Math.round(maxYear);
-            const yearLabels = [];
-            
-            // Create 5-6 year labels for the Z-axis
-            const numYearLabels = 6;
-            for (let i = 0; i < numYearLabels; i++) {
-                const z = -1.0 * spreadFactor + (i / (numYearLabels - 1)) * 2 * spreadFactor;
-                const year = Math.round(yearStart + (i / (numYearLabels - 1)) * (yearEnd - yearStart));
-                const worldPos = new THREE.Vector3(-spreadFactor - 0.35, -spreadFactor - 0.35, z);
-                createAxisLabelMoving(year.toString(), worldPos);
-            }
+            // Load axis orders from JSON file
+            fetch('landscape/json/landscape/keywordsorder.json')
+                .then(r => r.json())
+                .then(orderData => {
+                    const spreadFactor = 2.5;
+                    
+                    // THREE-LAYER SCALING:
+                    // Layer 1: Semantic normalization (preserve meaning)
+                    const CRITICAL_MAX = 6;    // Critical range: -2 to 6
+                    const DESIGN_MAX = 15;     // Design range: -4 to 15
+                    
+                    // Actual data ranges (now matches semantic ranges exactly)
+                    const CRITICAL_DATA_MIN = -2.0;
+                    const CRITICAL_DATA_MAX = 5.0;
+                    const DESIGN_DATA_MIN = -4.0;
+                    const DESIGN_DATA_MAX = 15.0;
+                    
+                    // Layer 2: Visual weighting (intentional balance)
+                    // Calculated to extend label range beyond data range for clarity
+                    const CRITICAL_DATA_RANGE = CRITICAL_DATA_MAX - CRITICAL_DATA_MIN;  // 7.0
+                    const DESIGN_DATA_RANGE = DESIGN_DATA_MAX - DESIGN_DATA_MIN;        // 19.0
+                    const VISUAL_WEIGHT_X = 8.0 / CRITICAL_DATA_RANGE * 6;  // 6.86x scale to fill 8.0 range
+                    const VISUAL_WEIGHT_Y = 6.0 / DESIGN_DATA_RANGE * 15;   // 4.74x scale to fill 6.0 range
+                    
+                    // Add X-axis (Critical) labels - straight line along X axis
+                    Object.entries(orderData.criticalOrder).forEach(([text, value]) => {
+                        // Layer 1: Semantic normalization to [-1, 1]
+                        const normCritical = value / CRITICAL_MAX;
+                        // Layer 2: Apply visual weight
+                        const xNorm = normCritical * VISUAL_WEIGHT_X;
+                        // Keep constant offset from axis
+                        const worldPos = new THREE.Vector3(xNorm, -0.35, -spreadFactor);
+                        createAxisLabelMoving(text, worldPos);
+                    });
+                    
+                    // Add Y-axis (Design) labels - straight line along Y axis
+                    Object.entries(orderData.designOrder).forEach(([text, value]) => {
+                        // Layer 1: Semantic normalization to [-1, 1]
+                        const normDesign = value / DESIGN_MAX;
+                        // Layer 2: Apply visual weight
+                        const yNorm = normDesign * VISUAL_WEIGHT_Y;
+                        // Keep constant offset from axis
+                        const worldPos = new THREE.Vector3(-0.35, yNorm, -spreadFactor);
+                        createAxisLabelMoving(text, worldPos);
+                    });
+                    
+                    // Add Z-axis (Year) labels - straight line along Z axis
+                    const yearStart = Math.round(minYear);
+                    const yearEnd = Math.round(maxYear);
+                    const numYearLabels = 6;
+                    for (let i = 0; i < numYearLabels; i++) {
+                        const z = -1.0 * spreadFactor + (i / (numYearLabels - 1)) * 2 * spreadFactor;
+                        const year = Math.round(yearStart + (i / (numYearLabels - 1)) * (yearEnd - yearStart));
+                        // Keep constant offset from axis
+                        const worldPos = new THREE.Vector3(-0.35, -0.35, z);
+                        createAxisLabelMoving(year.toString(), worldPos);
+                    }
+                })
+                .catch(err => console.error('Error loading keywordsorder.json:', err));
             
             // Create a map of position data with sentence info
             positionData.forEach((item, index) => {
@@ -616,13 +672,33 @@
             ];
             
             positionData.forEach((point, idx) => {
-                // Map categorical positions (1-9 for critical, 1-20 for design) to -1 to 1 range
-                // Treat null values specially
+                // THREE-LAYER SCALING:
+                // Layer 1: Semantic normalization (preserve meaning)
+                // X: -2 to 6 (critical max = 6)
+                // Y: -4 to 15 (design max = 15)
+                // Layer 2: Visual weighting (intentional balance)
+                // Layer 3: Screen mapping (consistent rendering)
                 if (point.x !== null && point.y !== null) {
-                    // X ranges from 1 to 9, normalize to -1 to 1 range
-                    const xNorm = ((point.x - 1) / 8) * 2 - 1; 
-                    // Y ranges from 1 to 20, normalize to -1 to 1 range
-                    const yNorm = ((point.y - 1) / 19) * 2 - 1;
+                    // Layer 1: Semantic normalization to [-1, 1]
+                    const CRITICAL_MAX = 6;
+                    const DESIGN_MAX = 15;
+                    const normCritical = point.x / CRITICAL_MAX;  // preserves meaning
+                    const normDesign = point.y / DESIGN_MAX;      // preserves meaning
+                    
+                    // Actual data ranges (now matches semantic ranges exactly)
+                    const CRITICAL_DATA_MIN = -2.0;
+                    const CRITICAL_DATA_MAX = 5.0;
+                    const DESIGN_DATA_MIN = -4.0;
+                    const DESIGN_DATA_MAX = 15.0;
+                    
+                    // Layer 2: Visual weight (matches axis label expansion)
+                    const CRITICAL_DATA_RANGE = CRITICAL_DATA_MAX - CRITICAL_DATA_MIN;  // 7.0
+                    const DESIGN_DATA_RANGE = DESIGN_DATA_MAX - DESIGN_DATA_MIN;        // 19.0
+                    const VISUAL_WEIGHT_X = 8.0 / CRITICAL_DATA_RANGE * 6;  // 6.86x scale
+                    const VISUAL_WEIGHT_Y = 6.0 / DESIGN_DATA_RANGE * 15;   // 4.74x scale
+                    const xNorm = normCritical * VISUAL_WEIGHT_X;
+                    const yNorm = normDesign * VISUAL_WEIGHT_Y;
+                    
                     // Z: year, normalized to roughly -1 to 1 range
                     let zNorm = 0;
                     if (point.z !== null && typeof point.z === 'number') {
@@ -632,7 +708,7 @@
                     positions.push(xNorm, yNorm, zNorm);
                     
                     // Color by design practice (Y-axis)
-                    const hue = (point.y - 1) / 20; // 0 to 1 hue
+                    const hue = (point.y + 4) / 19; // 0 to 1 hue
                     const color = new THREE.Color().setHSL(hue, 0.7, 0.5);
                     colors.push(color.r, color.g, color.b);
                 }
@@ -840,12 +916,26 @@
             // Add sprites for each point
             positionData.forEach((point, idx) => {
                 if (point.x !== null && point.y !== null) {
-                    // Map categorical positions to -1 to 1 range, then apply spread
-                    const xNorm = (((point.x - 1) / 8) * 2 - 1) * spreadFactor;
-                    const yNorm = (((point.y - 1) / 19) * 2 - 1) * spreadFactor;
+                    // THREE-LAYER SCALING (matching axis labels):
+                    // Layer 1: Semantic normalization
+                    const CRITICAL_MAX = 6;
+                    const DESIGN_MAX = 15;
+                    const normCritical = point.x / CRITICAL_MAX;
+                    const normDesign = point.y / DESIGN_MAX;
+                    
+                    // Layer 2: Visual weight (matches axis label expansion)
+                    const CRITICAL_DATA_RANGE = 7.0;  // -2 to 5
+                    const DESIGN_DATA_RANGE = 19.0;   // -4 to 15
+                    const VISUAL_WEIGHT_X = 8.0 / CRITICAL_DATA_RANGE * 6;  // 6.86x
+                    const VISUAL_WEIGHT_Y = 6.0 / DESIGN_DATA_RANGE * 15;   // 4.74x
+                    const xNorm = normCritical * VISUAL_WEIGHT_X;
+                    const yNorm = normDesign * VISUAL_WEIGHT_Y;
+                    
+                    // Z: year, normalized to roughly -1 to 1 range, then apply spreadFactor (same as axis labels)
                     let zNorm = 0;
                     if (point.z !== null && typeof point.z === 'number') {
-                        zNorm = (((point.z - minYear) / (maxYear - minYear) * 2) - 1) * spreadFactor;
+                        const zNormalized = ((point.z - minYear) / (maxYear - minYear) * 2) - 1;
+                        zNorm = zNormalized * spreadFactor;  // Apply spreadFactor to match axis labels
                     }
                     
                     // Get keywords for this sentence from analysis data
@@ -856,6 +946,40 @@
                     const sprite = createTextSprite(point.sentence, position, keywords, point.url, point.source || 'old');
                     scene.add(sprite);
                     sentenceSprites.push(sprite);
+                    
+                    // Add star indicator for new submissions (expires after 1 day)
+                    if (point.source === 'new') {
+                        const starGeometry = new THREE.BufferGeometry();
+                        const starPoints = [];
+                        const numPoints = 15;  // 15-pointed star
+                        const outerRadius = 0.3;
+                        const innerRadius = 0.15;
+                        
+                        for (let i = 0; i < numPoints * 2; i++) {
+                            const angle = (i / (numPoints * 2)) * Math.PI * 2;
+                            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                            starPoints.push(
+                                Math.cos(angle) * radius,
+                                Math.sin(angle) * radius,
+                                0
+                            );
+                        }
+                        
+                        starGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starPoints), 3));
+                        const starMaterial = new THREE.LineBasicMaterial({ color: 0xFFAA00, linewidth: 2 });
+                        const star = new THREE.Line(starGeometry, starMaterial);
+                        star.position.copy(position);
+                        star.position.z -= 0.2;  // Slightly in front
+                        scene.add(star);
+                        
+                        // Schedule star removal after 1 day (86400000 ms)
+                        const createdTime = new Date();
+                        setTimeout(() => {
+                            scene.remove(star);
+                            star.geometry.dispose();
+                            star.material.dispose();
+                        }, 86400000);
+                    }
                 }
             });
 
@@ -1291,7 +1415,10 @@
         });
     </script>
 
-    <!-- Glow overlay for orange blur effect at edges -->
-    <div class="glow-overlay"></div>
+    <!-- Glow overlay for orange blur effect at edges (for normal screen size) -->
+    <!-- <div class="glow-overlay"></div> -->
+    
+    <!-- Screen box with orange blur outline -->
+    <div class="screen-box-overlay"></div>
 </body>
 </html>

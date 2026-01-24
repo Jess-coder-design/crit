@@ -8,16 +8,18 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: visible;
 }
 
 body {
     font-family: "PT Sans", sans-serif;
     background: white;
-    overflow: hidden;
+    overflow: visible;
     color: #333;
 }
 
-.glow-overlay {
+/* Glow overlay for orange blur effect at edges (for normal screen size) */
+/*.glow-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -27,7 +29,7 @@ body {
     z-index: 9998;
     box-shadow: inset 0 0 40px #FF6600;
     background: transparent;
-}
+}*/
 
 #canvas { 
     display: block;
@@ -102,10 +104,10 @@ body {
     position: fixed;
     top: 20px;
     left: 25px;
-    font-size: 21px;
+    font-size: 28px;
     font-weight: bold;
     color: #333;
-    z-index: 100;
+    z-index: 10000;  /* Higher than screen-box-overlay (9999) */
     pointer-events: auto;
     font-family: "PT Sans", sans-serif;
     cursor: pointer;
@@ -142,14 +144,15 @@ body {
 }
 
 /* Keyword container and sliding panel */
+/* Original position for normal screen size: bottom: 20px; left: 20px !important; */
 .keyword-container {
     position: fixed;
-    bottom: 20px;
-    left: 20px !important;
+    top: 1117px;
+    left: 34px !important;
     right: auto !important;
     display: flex;
     align-items: center;
-    z-index: 1000;
+    z-index: 1001;
 }
 
 /* Button */
@@ -340,10 +343,12 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    top: 1090px;
+    left: 34px;
+    right: auto;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    flex-direction: row;
     z-index: 1000;
 }
 
@@ -368,28 +373,31 @@ body {
 
 .submissions-panel {
     display: flex;
-    flex-direction: column;
-    padding: 0;
+    flex-direction: row;
+    gap: 8px;
+    padding: 4px 20px 4px 0;
     background: white;
     border: 1.5px solid #333;
     border-radius: 0;
-    max-width: 350px;
-    max-height: 400px;
-    overflow-y: auto;
-    cursor: auto;
-    user-select: text;
+    white-space: nowrap;
+    max-width: calc(100vw - 100px);
+    max-height: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    user-select: none;
 
-    transform: translateX(calc(100% + 20px));
     opacity: 0;
     pointer-events: none;
 
-    transition: transform 0.35s ease, opacity 0.35s ease;
+    transition: opacity 0.35s ease;
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    
+    transform: translateX(20px);
 }
 
 .submissions-panel.open {
-    transform: translateX(0);
     opacity: 1;
     pointer-events: auto;
 }
@@ -465,4 +473,21 @@ body {
     text-align: center;
     color: #999;
     font-size: 12px;
+}
+/* Screen box with orange blur outline */
+.screen-box-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 2550px;
+    height: 1190px;
+    background: transparent;
+    border: 2px solid transparent;
+    box-shadow: 
+        inset 0 0 60px 20px rgba(255, 102, 0, 0.6),
+        inset 0 0 40px 10px rgba(255, 102, 0, 0.4),
+        0 0 60px 20px rgba(255, 102, 0, 0.5);
+    pointer-events: none;
+    z-index: 9999;
+}
 }

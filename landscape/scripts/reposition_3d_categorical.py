@@ -16,41 +16,41 @@ import json
 import random
 import os
 
-# Critical practice axis (X) - positions 1-9
+# Critical practice axis (X) - centered at 0
 CRITICAL_ORDER = {
-    "question": 1,
-    "critique": 2,
-    "critical": 3,
-    "interrogate": 4,
-    "problematize": 5,
-    "reframe": 6,
-    "reflect": 7,
-    "position": 8,
-    "post-critical": 9
+    "question": -2,
+    "critique": -1,
+    "critical": 0,
+    "interrogate": 1,
+    "problematize": 2,
+    "reframe": 3,
+    "reflect": 4,
+    "position": 5,
+    "post-critical": 6
 }
 
-# Design practice axis (Y) - positions 1-20
+# Design practice axis (Y) - centered at 0
 DESIGN_ORDER = {
-    "work": 1,
-    "craft": 2,
-    "applied art": 3,
-    "practice": 4,
-    "design": 5,
-    "project": 6,
-    "plan": 7,
-    "intend": 8,
-    "iterate": 9,
-    "explore": 10,
-    "inquire": 11,
-    "analyze": 12,
-    "evaluate": 13,
-    "investigate": 14,
-    "conceptualize": 15,
-    "narrate": 16,
-    "discourse": 17,
-    "dialecticize": 18,
-    "systematize": 19,
-    "theorize": 20
+    "work": -4,
+    "craft": -3,
+    "applied art": -2,
+    "practice": -1,
+    "design": 0,
+    "project": 1,
+    "plan": 2,
+    "intend": 3,
+    "iterate": 4,
+    "explore": 5,
+    "inquire": 6,
+    "analyze": 7,
+    "evaluate": 8,
+    "investigate": 9,
+    "conceptualize": 10,
+    "narrate": 11,
+    "discourse": 12,
+    "dialecticize": 13,
+    "systematize": 14,
+    "theorize": 15
 }
 
 JITTER_RANGE = 0.1  # ±0.1 jitter to prevent perfect overlap
@@ -170,10 +170,10 @@ def process_sentences(analysis_json_path, output_json_path):
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    noUMAP_dir = os.path.join(base_dir, "3d-landscape-noUMAP")
+    json_dir = os.path.join(base_dir, "json", "landscape")
     
-    analysis_path = os.path.join(noUMAP_dir, "3dmap_analysis.json")
-    output_path = os.path.join(noUMAP_dir, "position_3Dmap.json")
+    analysis_path = os.path.join(json_dir, "3dmap_analysis.json")
+    output_path = os.path.join(json_dir, "position_3dmap.json")
     
     print("Processing sentences with categorical axis ordering...\n")
     process_sentences(analysis_path, output_path)

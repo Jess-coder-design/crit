@@ -159,8 +159,9 @@ async function writeToGitHub(url, criticalKeywords, designKeywords, sentence, to
             timestamp: new Date().toISOString(),
             source: 'new',
             _dominant_critical_practice: criticalKeywords && criticalKeywords[0] ? criticalKeywords[0] : null,
+            _critical_axis_position: x,
             _dominant_design_practice: designKeywords && designKeywords[0] ? designKeywords[0] : null,
-            _critical_axis_position: designKeywords && designKeywords[0] ? designKeywords[0] : null
+            _design_axis_position: y
           };
 
           console.log('[writeToGitHub] New entry:', newEntry);
