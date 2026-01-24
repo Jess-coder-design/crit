@@ -275,6 +275,13 @@
                         
                         let html = '';
                         
+                        // Sort submissions by timestamp, newest first
+                        newSubmissions.sort((a, b) => {
+                            const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                            const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                            return timeB - timeA;
+                        });
+                        
                         newSubmissions.forEach(item => {
                             const fullUrl = item.url;
                             const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
