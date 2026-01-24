@@ -1247,7 +1247,7 @@
             
             // Make all star groups face the camera
             starGroups.forEach(starGroup => {
-                starGroup.quaternion.copy(camera.quaternion);
+                starGroup.lookAt(camera.position);
             });
             
             renderer.render(scene, camera);
