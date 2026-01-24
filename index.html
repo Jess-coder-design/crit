@@ -380,6 +380,38 @@
             keywordPanel.scrollLeft = scrollLeft - walk;
         });
 
+        // Drag to scroll for submissions panel (same as keywords)
+        const submissionsPanel = document.getElementById('submissionsPanel');
+        let isDownSubmissions = false;
+        let startXSubmissions;
+        let scrollLeftSubmissions;
+
+        submissionsPanel.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDownSubmissions = true;
+            submissionsPanel.classList.add('dragging');
+            startXSubmissions = e.pageX - submissionsPanel.offsetLeft;
+            scrollLeftSubmissions = submissionsPanel.scrollLeft;
+        });
+
+        submissionsPanel.addEventListener('mouseleave', () => {
+            isDownSubmissions = false;
+            submissionsPanel.classList.remove('dragging');
+        });
+
+        submissionsPanel.addEventListener('mouseup', () => {
+            isDownSubmissions = false;
+            submissionsPanel.classList.remove('dragging');
+        });
+
+        submissionsPanel.addEventListener('mousemove', (e) => {
+            if (!isDownSubmissions) return;
+            e.preventDefault();
+            const x = e.pageX - submissionsPanel.offsetLeft;
+            const walk = (x - startXSubmissions) * 1.5;
+            submissionsPanel.scrollLeft = scrollLeftSubmissions - walk;
+        });
+
         // Scene setup
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xffffff);
