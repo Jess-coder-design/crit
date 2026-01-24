@@ -149,6 +149,10 @@
                         allSentenceSprites.forEach(sprite => {
                             sprite.visible = true;
                         });
+                        // Show all submission items
+                        submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
+                            item.style.display = '';
+                        });
                         // Remove active styling from all keywords
                         panel.querySelectorAll('.keyword').forEach(el => {
                             el.style.opacity = '1';
@@ -165,6 +169,13 @@
                                 });
                             });
                             sprite.visible = hasAllKeywords;
+                        });
+                        
+                        // Also filter submission items to match visible sentences
+                        submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
+                            const sentenceText = item.dataset.sentence;
+                            const sentenceVisible = allSentenceSprites.some(s => s.userData.text === sentenceText && s.visible);
+                            item.style.display = sentenceVisible ? '' : 'none';
                         });
                         
                         // Style active keywords
