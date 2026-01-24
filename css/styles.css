@@ -455,6 +455,15 @@ body {
     text-decoration: underline;
 }
 
+.submission-sentence {
+    font-size: 11px;
+    color: #000;
+    word-break: break-word;
+    margin-bottom: 4px;
+    display: block;
+    line-height: 1.3;
+}
+
 .submission-date {
     font-size: 9px;
     color: #999;

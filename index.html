@@ -283,14 +283,14 @@
                         });
                         
                         newSubmissions.forEach(item => {
-                            const fullUrl = item.url;
+                            const sentence = item.sentence;
                             const timestamp = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
                             
-                            console.log('[CRIT] Displaying submission:', fullUrl, timestamp);
+                            console.log('[CRIT] Displaying submission:', sentence, timestamp);
                             
                             html += `
                                 <div class="submission-item" data-url="${item.url}" data-sentence="${item.sentence.replace(/"/g, '&quot;')}">
-                                    <a href="${item.url}" target="_blank" class="submission-url">${fullUrl}</a>
+                                    <div class="submission-sentence">${sentence}</div>
                                     <div class="submission-date">${timestamp}</div>
                                 </div>
                             `;
