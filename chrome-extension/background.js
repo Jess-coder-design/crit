@@ -86,4 +86,44 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     
     return true; // Keep channel open for async response
   }
+  
+  // Handle check and save page request from content script
+  if (request.type === 'CHECK_AND_SAVE_PAGE') {
+    console.log('[Background] Checking and saving page:', request.url);
+    
+    chrome.storage.local.get('savedPages', async (result) => {
+      const savedPages = result.savedPages || [];
+      
+      // Check if URL already exists
+      const urlExists = savedPages.some(page => page.url === request.url);
+      if (urlExists) {
+        console.log('[Background] URL already exists:', request.url);
+        sendResponse({ alreadyExists: true });
+        return;
+      }
+      
+      // If not exists, send message to content script to process keywords
+      try {
+        const response = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (response[0]) {
+          chrome.tabs.sendMessage(
+            response[0].id,
+            { type: 'PROCESS_AND_SAVE_PAGE', url: request.url },
+            (processResponse) => {
+              if (processResponse && processResponse.success) {
+                sendResponse({ success: true, data: processResponse.data });
+              } else {
+                sendResponse({ success: false });
+              }
+            }
+          );
+        }
+      } catch (error) {
+        console.error('[Background] Error processing page:', error);
+        sendResponse({ success: false });
+      }
+    });
+    
+    return true; // Keep channel open for async response
+  }
 });

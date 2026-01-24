@@ -10,7 +10,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["keywords.json", "colors.json"],
+      "resources": ["keywords.json", "colors.json", "designers.json"],
       "matches": ["<all_urls>"]
     }
   ],

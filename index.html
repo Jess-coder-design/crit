@@ -173,17 +173,28 @@
                         
                         // Also filter submission items to match keyword filters
                         submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
-                            const criticalPractice = item.querySelector('.submission-keywords')?.textContent.match(/Critical: (.+?)(?:\n|$)/)?.[1]?.trim();
-                            const designPractice = item.querySelectorAll('.submission-keywords')[1]?.textContent.match(/Design: (.+?)(?:\n|$)/)?.[1]?.trim();
+                            // Extract keywords from the submission item's text content
+                            const keywordDivs = item.querySelectorAll('.submission-keywords');
+                            let criticalPractice = '';
+                            let designPractice = '';
+                            
+                            if (keywordDivs.length >= 1) {
+                                const criticalText = keywordDivs[0].textContent;
+                                criticalPractice = criticalText.replace('Critical:', '').trim();
+                            }
+                            if (keywordDivs.length >= 2) {
+                                const designText = keywordDivs[1].textContent;
+                                designPractice = designText.replace('Design:', '').trim();
+                            }
                             
                             // Check if submission's keywords match all selected filters
                             const matchesFilter = Array.from(activeKeywordFilters).every(selectedKeyword => {
-                                const criLower = criticalPractice?.toLowerCase() || '';
-                                const desPower = designPractice?.toLowerCase() || '';
+                                const criLower = criticalPractice.toLowerCase();
+                                const desLower = designPractice.toLowerCase();
                                 const selectedLower = selectedKeyword.toLowerCase();
                                 
                                 const baseKeywordCrit = variationToBase[criLower] || criLower;
-                                const baseKeywordDes = variationToBase[desPower] || desPower;
+                                const baseKeywordDes = variationToBase[desLower] || desLower;
                                 
                                 return baseKeywordCrit === selectedLower || baseKeywordDes === selectedLower;
                             });

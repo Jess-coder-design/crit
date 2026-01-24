@@ -1,6 +1,7 @@
 // Track selected keywords for drawing
 let selectedKeywords = [];
 let selectionTimeout = null;
+let svg = null;
 
 // Apply orange blur by default (unless this is the CR!T landscape page or crit site)
 // Check if this is the landscape page by looking at the URL
@@ -11,22 +12,31 @@ console.log('[CRIT Extension] Hostname:', window.location.hostname, 'isCritSite:
 
 if (!isLandscapePage && !isCritSite) {
   applyOrangeBlur();
+  
+  // Create SVG overlay for drawing connections (only on external sites)
+  // Wait for DOM to be ready
+  if (document.documentElement) {
+    try {
+      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.id = 'crit-keyword-connections';
+      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      svg.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2147483646;
+      `;
+      document.documentElement.appendChild(svg);
+      console.log('[Extension] SVG created successfully');
+    } catch (error) {
+      console.error('[Extension] Failed to create SVG:', error);
+      svg = null;
+    }
+  }
 }
-
-// Create SVG overlay for drawing connections
-const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-svg.id = 'crit-keyword-connections';
-svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-svg.style.cssText = `
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2147483646;
-`;
-document.documentElement.appendChild(svg);
 
 // Create Add button
 const addButton = document.createElement('button');
@@ -67,143 +77,24 @@ async function handleAddButtonClick() {
   const currentUrl = window.location.href;
   console.log('Add button clicked for URL:', currentUrl);
   
-  // Get stored pages from chrome storage
-  chrome.storage.local.get('savedPages', async (result) => {
-    const savedPages = result.savedPages || [];
-    
-    // Check if URL is already in list
-    const urlExists = savedPages.some(page => page.url === currentUrl);
-    if (urlExists) {
-      console.log('URL already exists in saved list:', currentUrl);
-      showMessage('Already in the Map!', 'already');
-      return;
-    }
-    
-    console.log('URL is new, checking keywords...');
-    
-    // Fetch keywords.json to validate groups
-    try {
-      const response = await fetch(chrome.runtime.getURL('keywords.json'));
-      const keywordsData = await response.json();
-      
-      // Check if there's at least one critical keyword and one design keyword
-      let hasCriticalKeyword = false;
-      let hasDesignKeyword = false;
-      
-      // Get all critical keywords
-      const criticalKeywords = new Set();
-      if (keywordsData['x-axis'] && keywordsData['x-axis'].critical) {
-        Object.entries(keywordsData['x-axis'].critical).forEach(([base, variations]) => {
-          variations.forEach(v => criticalKeywords.add(v.toLowerCase()));
-        });
-      }
-      
-      // Get all design keywords
-      const designKeywords = new Set();
-      if (keywordsData['y-axis'] && keywordsData['y-axis'].design) {
-        Object.entries(keywordsData['y-axis'].design).forEach(([base, variations]) => {
-          variations.forEach(v => designKeywords.add(v.toLowerCase()));
-        });
-      }
-      
-      // Check page content for keywords
-      const pageText = document.body.innerText.toLowerCase();
-      
-      for (let keyword of criticalKeywords) {
-        if (pageText.includes(keyword)) {
-          hasCriticalKeyword = true;
-          break;
-        }
-      }
-      
-      for (let keyword of designKeywords) {
-        if (pageText.includes(keyword)) {
-          hasDesignKeyword = true;
-          break;
-        }
-      }
-      
-      if (hasCriticalKeyword && hasDesignKeyword) {
-        console.log('✓ Page has both critical and design keywords');
-        
-        // Extract which specific keywords were found
-        const foundCriticalKeywords = [];
-        const foundDesignKeywords = [];
-        
-        for (let keyword of criticalKeywords) {
-          if (pageText.includes(keyword)) {
-            foundCriticalKeywords.push(keyword);
-          }
-        }
-        
-        for (let keyword of designKeywords) {
-          if (pageText.includes(keyword)) {
-            foundDesignKeywords.push(keyword);
-          }
-        }
-        
-        console.log('[CRIT] Found keywords:', {
-          critical: foundCriticalKeywords.slice(0, 5),
-          design: foundDesignKeywords.slice(0, 5),
-          totalCritical: foundCriticalKeywords.length,
-          totalDesign: foundDesignKeywords.length
-        });
-        
-        // Create page entry with keywords
-        const pageEntry = {
-          url: currentUrl,
-          timestamp: new Date().toISOString(),
-          criticalKeywords: foundCriticalKeywords,
-          designKeywords: foundDesignKeywords
-        };
-        
-        // Add to existing pages
-        savedPages.push(pageEntry);
-        
-        // Save the updated list locally
-        chrome.storage.local.set({ savedPages: savedPages });
-        
-        // Extract a sentence from the page (from meta description, first paragraph, or title)
-        let sentence = '';
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-          sentence = metaDescription.getAttribute('content');
-        } else {
-          const firstP = document.querySelector('p');
-          if (firstP && firstP.textContent) {
-            sentence = firstP.textContent.substring(0, 200);
-          } else if (document.title) {
-            sentence = document.title;
-          }
-        }
-
-        // Send data to background script (which will handle the fetch)
-        chrome.runtime.sendMessage(
-          {
-            type: 'SAVE_PAGE',
-            payload: {
-              url: currentUrl,
-              criticalKeywords: foundCriticalKeywords,
-              designKeywords: foundDesignKeywords,
-              sentence: sentence
-            }
-          },
-          (response) => {
-            if (response && response.success) {
-              console.log('✓ Page submitted successfully:', response.data);
-              showMessage('Success!', 'success');
-            } else {
-              console.error('✗ Failed to submit page:', response?.error || 'Unknown error');
-            }
-          }
-        );
+  // Send message to background script to check if URL already exists and process
+  chrome.runtime.sendMessage(
+    {
+      type: 'CHECK_AND_SAVE_PAGE',
+      url: currentUrl
+    },
+    (response) => {
+      if (response && response.alreadyExists) {
+        console.log('URL already exists in saved list:', currentUrl);
+        showMessage('Already in the Map!', 'already');
+      } else if (response && response.success) {
+        console.log('✓ Page added successfully');
+        showMessage('Success!', 'success');
       } else {
-        console.log('✗ Page missing required keywords. Critical:', hasCriticalKeyword, 'Design:', hasDesignKeyword);
+        console.log('Page processing started or already being processed');
       }
-    } catch (error) {
-      console.error('Error checking keywords:', error);
     }
-  });
+  );
 }
 
 // Wait for DOM to be ready
@@ -214,9 +105,9 @@ if (document.readyState === 'loading') {
 }
 
 function initializeHighlighting() {
-  // Don't highlight keywords on the landscape page
-  if (isLandscapePage) {
-    console.log('Landscape page detected, skipping keyword highlighting');
+  // Don't highlight keywords on the landscape page or netlify site
+  if (isLandscapePage || isCritSite) {
+    console.log('Landscape or CRIT site detected, skipping keyword highlighting');
     return;
   }
 
@@ -253,11 +144,108 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         removeOrangeBlur();
       }
       sendResponse({ status: 'done' });
+    } else if (request.type === 'PROCESS_AND_SAVE_PAGE') {
+      // Process and save page keywords
+      processAndSavePage(request.url).then(success => {
+        sendResponse({ success: success });
+      });
+      return true; // Keep channel open for async response
     }
   } catch (error) {
     console.error('Error handling message:', error);
   }
 });
+
+// Process page for keywords and save it
+async function processAndSavePage(currentUrl) {
+  try {
+    const response = await fetch(chrome.runtime.getURL('keywords.json'));
+    const keywordsData = await response.json();
+    
+    // Get all keywords
+    const criticalKeywords = new Set();
+    if (keywordsData['x-axis'] && keywordsData['x-axis'].critical) {
+      Object.entries(keywordsData['x-axis'].critical).forEach(([base, variations]) => {
+        variations.forEach(v => criticalKeywords.add(v.toLowerCase()));
+      });
+    }
+    
+    const designKeywords = new Set();
+    if (keywordsData['y-axis'] && keywordsData['y-axis'].design) {
+      Object.entries(keywordsData['y-axis'].design).forEach(([base, variations]) => {
+        variations.forEach(v => designKeywords.add(v.toLowerCase()));
+      });
+    }
+    
+    // Check page content
+    const pageText = document.body.innerText.toLowerCase();
+    let hasCriticalKeyword = false;
+    let hasDesignKeyword = false;
+    const foundCriticalKeywords = [];
+    const foundDesignKeywords = [];
+    
+    for (let keyword of criticalKeywords) {
+      if (pageText.includes(keyword)) {
+        hasCriticalKeyword = true;
+        foundCriticalKeywords.push(keyword);
+      }
+    }
+    
+    for (let keyword of designKeywords) {
+      if (pageText.includes(keyword)) {
+        hasDesignKeyword = true;
+        foundDesignKeywords.push(keyword);
+      }
+    }
+    
+    if (!hasCriticalKeyword || !hasDesignKeyword) {
+      console.log('Page missing required keywords');
+      return false;
+    }
+    
+    // Extract sentence
+    let sentence = '';
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      sentence = metaDescription.getAttribute('content');
+    } else {
+      const firstP = document.querySelector('p');
+      if (firstP && firstP.textContent) {
+        sentence = firstP.textContent.substring(0, 200);
+      } else if (document.title) {
+        sentence = document.title;
+      }
+    }
+    
+    // Save locally
+    chrome.storage.local.get('savedPages', (result) => {
+      const savedPages = result.savedPages || [];
+      savedPages.push({
+        url: currentUrl,
+        timestamp: new Date().toISOString(),
+        criticalKeywords: foundCriticalKeywords,
+        designKeywords: foundDesignKeywords
+      });
+      chrome.storage.local.set({ savedPages: savedPages });
+    });
+    
+    // Send to background to save to remote
+    chrome.runtime.sendMessage({
+      type: 'SAVE_PAGE',
+      payload: {
+        url: currentUrl,
+        criticalKeywords: foundCriticalKeywords,
+        designKeywords: foundDesignKeywords,
+        sentence: sentence
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error processing page:', error);
+    return false;
+  }
+}
 
 function applyOrangeBlur() {
   // Remove existing blur element if it exists
@@ -446,7 +434,7 @@ function handleKeywordClick(e) {
   
   console.log('Keyword clicked:', e.target.dataset.keyword);
   
-  // Clear any pending timeout
+  // Clear any pending timeout to reset the timer
   if (selectionTimeout) {
     clearTimeout(selectionTimeout);
   }
@@ -456,59 +444,83 @@ function handleKeywordClick(e) {
   console.log('Total keywords selected:', selectedKeywords.length);
   
   // Redraw all lines and dots
-  redrawConnections();
+  try {
+    redrawConnections();
+  } catch (error) {
+    console.error('Error drawing connections:', error);
+  }
   
-  // Set timeout to navigate if no other keyword is clicked
+  // Set timeout to navigate after 2 seconds of no clicks
   selectionTimeout = setTimeout(() => {
     console.log('2 seconds elapsed, navigating...');
-    window.location.href = 'http://127.0.0.1:5500/index.html';
+    window.location.href = 'https://crit-online.netlify.app/';
     selectedKeywords = [];
   }, 2000);
 }
 
 function redrawConnections() {
-  // Clear all previous lines and circles
-  svg.innerHTML = '';
-  
-  if (selectedKeywords.length < 1) return;
-  
-  // Draw lines between consecutive keywords
-  for (let i = 0; i < selectedKeywords.length; i++) {
-    const currentMark = selectedKeywords[i];
-    const nextMark = selectedKeywords[(i + 1) % selectedKeywords.length]; // Loop back to first
-    
-    const rect1 = currentMark.getBoundingClientRect();
-    const rect2 = nextMark.getBoundingClientRect();
-    
-    const x1 = rect1.left + rect1.width / 2;
-    const y1 = rect1.top + rect1.height / 2;
-    const x2 = rect2.left + rect2.width / 2;
-    const y2 = rect2.top + rect2.height / 2;
-    
-    // Draw line
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
-    line.setAttribute('stroke', '#FF6600');
-    line.setAttribute('stroke-width', '3');
-    svg.appendChild(line);
+  // Skip if SVG doesn't exist (on CR!T site)
+  if (!svg) {
+    console.log('[Extension] SVG is null, skipping redraw');
+    return;
   }
   
-  // Draw dots at all keyword positions
-  selectedKeywords.forEach(mark => {
-    const rect = mark.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
+  try {
+    // Clear all previous lines and circles
+    svg.innerHTML = '';
     
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', x);
-    circle.setAttribute('cy', y);
-    circle.setAttribute('r', '5');
-    circle.setAttribute('fill', '#FF6600');
-    svg.appendChild(circle);
-  });
+    if (selectedKeywords.length < 1) return;
+    
+    // Draw lines between consecutive keywords
+    for (let i = 0; i < selectedKeywords.length; i++) {
+      const currentMark = selectedKeywords[i];
+      const nextMark = selectedKeywords[(i + 1) % selectedKeywords.length]; // Loop back to first
+      
+      // Make sure elements are still in the document
+      if (!document.body.contains(currentMark) || !document.body.contains(nextMark)) {
+        continue;
+      }
+      
+      const rect1 = currentMark.getBoundingClientRect();
+      const rect2 = nextMark.getBoundingClientRect();
+      
+      const x1 = rect1.left + rect1.width / 2;
+      const y1 = rect1.top + rect1.height / 2;
+      const x2 = rect2.left + rect2.width / 2;
+      const y2 = rect2.top + rect2.height / 2;
+      
+      // Draw line
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke', '#FF6600');
+      line.setAttribute('stroke-width', '3');
+      svg.appendChild(line);
+    }
+    
+    // Draw dots at all keyword positions
+    selectedKeywords.forEach(mark => {
+      // Make sure element is still in the document
+      if (!document.body.contains(mark)) {
+        return;
+      }
+      
+      const rect = mark.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', '5');
+      circle.setAttribute('fill', '#FF6600');
+      svg.appendChild(circle);
+    });
+  } catch (error) {
+    console.error('[Extension] Error in redrawConnections:', error);
+  }
 }
 
 function highlightDesigners() {
@@ -607,7 +619,7 @@ function showMessage(text, type) {
   message.textContent = text;
   message.style.cssText = `
     position: fixed;
-    bottom: 64px;
+    bottom: 50px;
     left: 20px;
     padding: 8px 12px;
     font-family: "PT Sans", sans-serif;
@@ -622,7 +634,11 @@ function showMessage(text, type) {
     animation: fadeIn 0.3s ease-in-out;
   `;
   
-  document.documentElement.appendChild(message);
+  // Append to body or documentElement, whichever exists
+  const target = document.body || document.documentElement;
+  if (target) {
+    target.appendChild(message);
+  }
   
   // Remove after 2 seconds
   setTimeout(() => {
@@ -630,8 +646,8 @@ function showMessage(text, type) {
   }, 2000);
 }
 
-// Add animation keyframes
-if (!document.getElementById('crit-message-styles')) {
+// Add animation keyframes (only on external sites)
+if (!isLandscapePage && !isCritSite && !document.getElementById('crit-message-styles')) {
   const style = document.createElement('style');
   style.id = 'crit-message-styles';
   style.textContent = `
@@ -646,5 +662,7 @@ if (!document.getElementById('crit-message-styles')) {
       }
     }
   `;
-  document.head.appendChild(style);
+  if (document.head) {
+    document.head.appendChild(style);
+  }
 }
