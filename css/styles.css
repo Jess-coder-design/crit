@@ -61,7 +61,7 @@ body {
     pointer-events: none;
     display: none;
     z-index: 200;
-    max-width: 500px;
+    max-width: 900px;
     border: 1.5px solid #666;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     line-height: 1.6;

@@ -335,9 +335,9 @@
         scene.background = new THREE.Color(0xffffff);
         
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        // Position camera to look toward negative Z (toward 1998)
-        camera.position.set(0, -0.5, 1);
-        camera.lookAt(0, 0, -10);
+        // Position camera much lower so axis cross is completely out of view, looking towards 2026, closer for zoom
+        camera.position.set(0, -2, 0.5);
+        camera.lookAt(0, 0, 10);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
