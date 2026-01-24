@@ -1269,13 +1269,34 @@
                 console.log('[playSequence] Playing sentence', (currentIndex + 1) + '/' + sentenceArray.length);
                 console.log('[playSequence] Searching for:', sentenceText.substring(0, 80));
                 
-                // Find the sprite - use exact match, not partial
-                const sprite = allSentenceSprites.find(s => 
+                // Find the sprite - try exact match first, then try identifying phrases
+                let sprite = allSentenceSprites.find(s => 
                     s.userData.text === sentenceText || 
                     s.userData.text === sentenceText.trim() ||
                     s.userData.text.trim() === sentenceText ||
                     s.userData.text.trim() === sentenceText.trim()
                 );
+                
+                // Fallback: search for key identifying phrases
+                if (!sprite) {
+                    console.log('[playSequence] Exact match failed, searching for identifying phrases...');
+                    
+                    // Define identifying phrases for each sentence
+                    let identifyingPhrases = [];
+                    if (sentenceText.includes('designs not only raise awareness')) {
+                        identifyingPhrases = ['designs not only raise awareness', 'encourage critical thinking'];
+                    } else if (sentenceText.includes('Participatory design, critical design, service design')) {
+                        identifyingPhrases = ['Participatory design, critical design', 'intentionally incorporate'];
+                    } else if (sentenceText.includes('Garnet Hertz') || sentenceText.includes('critical making')) {
+                        identifyingPhrases = ['Garnet Hertz', 'critical making', 'hands-on fabrication'];
+                    }
+                    
+                    // Try to find by identifying phrases
+                    sprite = allSentenceSprites.find(s => {
+                        const text = s.userData.text.toLowerCase();
+                        return identifyingPhrases.some(phrase => text.includes(phrase.toLowerCase()));
+                    });
+                }
                 
                 if (!sprite) {
                     console.warn('[playSequence] Sentence not found:', sentenceText.substring(0, 80));
