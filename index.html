@@ -1321,7 +1321,8 @@
                 "Critical design and artistic research grounded in textual engagement, creative writing, prototyping, and meticulous documentation as knowledge production.",
                 "His designs not only raise awareness but also encourage critical thinking, helping us discover what we value and determine the steps we want to take into the future."
             ];
-            playSequence(sentences, 3000, 4000);
+            // 4s delay, 2s pan time, 5s hold on each sentence
+            playSequence(sentences, 2000, 5000, 4000);
         };
         
         console.log('[CRIT] Animation ready! Type: playDesignCritiqueSentences() to play the sequence');
