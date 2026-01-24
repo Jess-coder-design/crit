@@ -32,9 +32,27 @@ exports.handler = async (event) => {
 
     console.log('[save-page] Received URL:', url);
 
-    // Fetch and analyze the page
-    const sentences = await fetchAndAnalyzePage(url);
-    console.log('[save-page] Found', sentences.length, 'sentences with keywords');
+    // Try to get existing analysis from GitHub
+    const githubToken = process.env.newnewnew;
+    console.log('[save-page] Checking token - newnewnew exists?', !!githubToken);
+
+    let sentences = [];
+    
+    // First, check if URL is already analyzed
+    if (githubToken) {
+      const existingEntries = await getExistingAnalysisEntries(url, githubToken);
+      if (existingEntries.length > 0) {
+        console.log('[save-page] Found', existingEntries.length, 'existing analyzed entries for this URL');
+        sentences = existingEntries;
+      }
+    }
+
+    // If no existing entries, fetch and analyze the page
+    if (sentences.length === 0) {
+      console.log('[save-page] URL not in analysis list, fetching and analyzing page...');
+      sentences = await fetchAndAnalyzePage(url);
+      console.log('[save-page] Found', sentences.length, 'sentences with keywords');
+    }
 
     if (sentences.length === 0) {
       return {
@@ -43,10 +61,6 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: "No sentences with keywords found on page" }),
       };
     }
-
-    // Try to write to GitHub if token is available
-    const githubToken = process.env.newnewnew;
-    console.log('[save-page] Checking token - newnewnew exists?', !!githubToken);
     
     if (githubToken) {
       console.log('[save-page] Token found, writing to GitHub...');
@@ -75,7 +89,7 @@ exports.handler = async (event) => {
         success: true,
         url,
         sentencesAdded: sentences.length,
-        message: `Successfully analyzed page and added ${sentences.length} sentences`,
+        message: `Successfully processed page and added ${sentences.length} sentences`,
       }),
     };
   } catch (err) {
@@ -91,6 +105,53 @@ exports.handler = async (event) => {
 // Keyword data - critical and design keywords
 const CRITICAL_KEYWORDS = ['question', 'critique', 'critical', 'interrogate', 'problematize', 'reframe', 'reflect', 'position', 'post-critical'];
 const DESIGN_KEYWORDS = ['work', 'craft', 'applied art', 'practice', 'design', 'project', 'plan', 'intend', 'iterate', 'explore', 'inquire', 'analyze', 'evaluate', 'investigate', 'conceptualize', 'narrate', 'discourse', 'dialecticize', 'systematize', 'theorize'];
+
+async function getExistingAnalysisEntries(url, token) {
+  return new Promise((resolve, reject) => {
+    const owner = 'Jess-coder-design';
+    const repo = 'crit';
+    const branch = 'main';
+    const filePath = 'landscape/json/landscape/3dmap_analysis.json';
+
+    const getOptions = {
+      hostname: 'api.github.com',
+      path: `/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`,
+      method: 'GET',
+      headers: {
+        'Authorization': `token ${token}`,
+        'User-Agent': 'Netlify-Save-Page'
+      }
+    };
+
+    https.request(getOptions, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const fileData = JSON.parse(data);
+          const content = Buffer.from(fileData.content, 'base64').toString('utf8');
+          const entries = JSON.parse(content);
+
+          // Filter entries for this URL and convert to sentence format
+          const urlEntries = entries.filter(e => e.url === url);
+          const sentences = urlEntries.map(e => ({
+            sentence: e.sentence,
+            criticalKeywords: e.critical || [],
+            designKeywords: e.design || []
+          }));
+
+          resolve(sentences);
+        } catch (err) {
+          console.error('[getExistingAnalysisEntries] Parse error:', err.message);
+          resolve([]); // Return empty array on error, will trigger new analysis
+        }
+      });
+    }).on('error', (err) => {
+      console.error('[getExistingAnalysisEntries] Fetch error:', err.message);
+      resolve([]); // Return empty array on error, will trigger new analysis
+    }).end();
+  });
+}
 
 async function fetchAndAnalyzePage(url) {
   return new Promise((resolve, reject) => {
