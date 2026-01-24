@@ -1269,10 +1269,12 @@
                 console.log('[playSequence] Playing sentence', (currentIndex + 1) + '/' + sentenceArray.length);
                 console.log('[playSequence] Searching for:', sentenceText.substring(0, 80));
                 
-                // Find the sprite
+                // Find the sprite - use exact match, not partial
                 const sprite = allSentenceSprites.find(s => 
-                    s.userData.text.includes(sentenceText) || 
-                    s.userData.text.toLowerCase().includes(sentenceText.toLowerCase())
+                    s.userData.text === sentenceText || 
+                    s.userData.text === sentenceText.trim() ||
+                    s.userData.text.trim() === sentenceText ||
+                    s.userData.text.trim() === sentenceText.trim()
                 );
                 
                 if (!sprite) {
