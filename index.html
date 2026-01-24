@@ -492,13 +492,12 @@
         scene.add(yAxis);
 
         // Z-axis line (blue) - passes through (0, 0) origin where X and Y intersect
-        // Use a cylinder instead of line for better visibility
-        const zAxisRadius = 0.008;  // Match visual thickness of line axes
-        const zAxisGeometry = new THREE.CylinderGeometry(zAxisRadius, zAxisRadius, 5, 8);
-        const zAxisMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-        const zAxis = new THREE.Mesh(zAxisGeometry, zAxisMaterial);
-        zAxis.position.set(0, 0, 0);
-        zAxis.rotation.x = Math.PI / 2;  // Rotate to align with Z-axis
+        const zAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, -axisLength),
+            new THREE.Vector3(0, 0, axisLength)
+        ]);
+        const zAxisMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff, linewidth: axisWidth });
+        const zAxis = new THREE.Line(zAxisGeometry, zAxisMaterial);
         scene.add(zAxis);
 
         // Add tick marks for axes (commented out)
