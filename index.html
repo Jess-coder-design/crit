@@ -1718,6 +1718,18 @@
                 }
             }
             
+            // Clear drawing with 'C' key
+            if (e.key.toLowerCase() === 'c' && isDrawingMode) {
+                // Remove all drawing lines from scene
+                allDrawings.forEach(line => {
+                    scene.remove(line);
+                    line.geometry.dispose();
+                    line.material.dispose();
+                });
+                allDrawings = [];
+                currentLinePoints = [];
+            }
+            
             // Escape also exits drawing mode
             if (e.key === 'Escape' && isDrawingMode) {
                 isDrawingMode = false;
