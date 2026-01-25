@@ -450,11 +450,13 @@ function handleKeywordClick(e) {
     console.error('Error drawing connections:', error);
   }
   
-  // Set timeout to navigate after 2 seconds of no clicks
+  // Reset the selection after 2 seconds of inactivity, then navigate
   selectionTimeout = setTimeout(() => {
-    console.log('2 seconds elapsed, navigating...');
-    window.location.href = 'https://crit-online.netlify.app/';
     selectedKeywords = [];
+    clearSVG();
+    
+    // Navigate to crit site immediately after clearing
+    window.location.href = 'https://crit-online.netlify.app/';
   }, 2000);
 }
 
@@ -520,6 +522,12 @@ function redrawConnections() {
     });
   } catch (error) {
     console.error('[Extension] Error in redrawConnections:', error);
+  }
+}
+
+function clearSVG() {
+  if (svg) {
+    svg.innerHTML = '';
   }
 }
 
