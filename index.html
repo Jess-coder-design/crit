@@ -280,8 +280,9 @@
                     .then(r => r.json())
                     .then(data => {
                         console.log('[CRIT] Loaded position_3dmap.json, total entries:', data.length);
-                        const newSubmissions = data.filter(item => item.source === 'new');
-                        console.log('[CRIT] Found new submissions:', newSubmissions.length);
+                        // Only show new submissions that have valid x and y coordinates (on the map)
+                        const newSubmissions = data.filter(item => item.source === 'new' && item.x !== null && item.y !== null);
+                        console.log('[CRIT] Found new submissions on map:', newSubmissions.length);
                         
                         if (newSubmissions.length === 0) {
                             submissionsPanel.innerHTML = '<div class="submissions-empty">No new submissions yet</div>';
