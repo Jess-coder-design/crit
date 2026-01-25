@@ -343,8 +343,8 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 8px;
-    left: 120px;
+    bottom: 43px;
+    left: 20px;
     right: auto;
     display: flex;
     align-items: center;
