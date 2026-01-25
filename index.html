@@ -280,8 +280,8 @@
                     .then(r => r.json())
                     .then(data => {
                         console.log('[CRIT] Loaded position_3dmap.json, total entries:', data.length);
-                        // Only show new submissions that have valid x and y coordinates (on the map)
-                        const newSubmissions = data.filter(item => item.source === 'new' && item.x !== null && item.y !== null);
+                        // Only show new submissions that have valid x, y, and z coordinates (on the map)
+                        const newSubmissions = data.filter(item => item.source === 'new' && item.x !== null && item.y !== null && item.z !== null);
                         console.log('[CRIT] Found new submissions on map:', newSubmissions.length);
                         
                         if (newSubmissions.length === 0) {
@@ -1021,7 +1021,7 @@
 
             // Add sprites for each point
             positionData.forEach((point, idx) => {
-                if (point.x !== null && point.y !== null) {
+                if (point.x !== null && point.y !== null && point.z !== null) {
                     // THREE-LAYER SCALING (matching axis labels):
                     // Layer 1: Semantic normalization
                     const CRITICAL_MAX = 6;
