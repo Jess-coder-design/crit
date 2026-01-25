@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CR!T Orange Blur",
   "version": "1.0",
-  "description": "Adds an orange blur effect to webpages and highlights CR!T keywords with their colors",
+  "description": "Attach, explore, and transform online sources into an interactive map of critical design.",
   "permissions": [
     "scripting",
     "activeTab",
