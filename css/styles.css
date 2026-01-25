@@ -343,7 +343,7 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 43px;
+    bottom: 39px;
     left: 20px;
     right: auto;
     display: flex;
