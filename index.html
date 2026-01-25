@@ -1100,14 +1100,19 @@
                         sprite.userData.linkedStarGroup = starGroup;
                         
                         scene.add(starGroup);
-                        starGroups.push(starGroup);  // Track for camera-facing updates
+                        starGroups.push(starGroup);  // Trackfrom when it was created
+                        const createdTime = point.timestamp ? new Date(point.timestamp) : new Date();
+                        const createdTimestamp = createdTime.getTime();
+                        const now = Date.now();
+                        const elapsedTime = now - createdTimestamp;
+                        const remainingTime = Math.max(0, 86400000 - elapsedTime); // 1 day = 86400000 ms
                         
-                        // Schedule star removal after 1 day (86400000 ms)
-                        const createdTime = new Date();
                         setTimeout(() => {
                             scene.remove(starGroup);
                             star.geometry.dispose();
                             star.material.dispose();
+                            starGroups = starGroups.filter(sg => sg !== starGroup);
+                        }, remainingTimeterial.dispose();
                             starGroups = starGroups.filter(sg => sg !== starGroup);
                         }, 86400000);
                     }
