@@ -1077,8 +1077,16 @@
                         shape.lineTo(Math.cos(-Math.PI / 2) * outerRadius, Math.sin(-Math.PI / 2) * outerRadius);
                         
                         const starGeometry = new THREE.ShapeGeometry(shape);
-                        const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFF6600, side: THREE.DoubleSide });
-                        const star = new THREE.Mesh(starGeometry, starMaterial);
+                        const starMaterial = new THREE.MeshBasicMaterial({ 
+                            color: 0xFF6600, 
+                            side: THREE.DoubleSide,
+                            transparent: true,
+                            opacity: 1.0,
+                            depthWrite: false,
+                            depthTest: false
+                        });
+                        const star = new THREE.Mesh(starGeometry, starMaterial.clone()); // Clone for each star
+                        star.renderOrder = 999;
                         
                         // Link the star mesh directly to the sprite for easy lookup during raycasting
                         star.userData.linkedSprite = sprite;
@@ -1322,6 +1330,64 @@
             // Make all star groups face the camera
             starGroups.forEach(starGroup => {
                 starGroup.lookAt(camera.position);
+            });
+            
+            // Atmospheric perspective: distance-based color and opacity fading
+            allSentenceSprites.forEach(sprite => {
+                // Calculate distance from camera to sprite
+                const distanceToCamera = camera.position.distanceTo(sprite.position);
+                
+                // Define fade range
+                const nearDist = 0.5;  // Distance at which text is fully sharp/black
+                const farDist = 3.5;   // Distance at which text is most faded
+                
+                // Normalize distance to 0-1 range (smoothstep for smooth transition)
+                const t = Math.min(1, Math.max(0, (distanceToCamera - nearDist) / (farDist - nearDist)));
+                
+                // Apply smoothstep for smoother curve
+                const smoothT = t * t * (3.0 - 2.0 * t);
+                
+                // Color fade: black (0,0,0) -> gray (0.70, 0.70, 0.70)
+                const colorValue = 1.0 - (smoothT * 0.30); // 1.0 to 0.70
+                
+                // Opacity fade: 1.0 -> 0.72
+                const opacity = 1.0 - (smoothT * 0.28);
+                
+                // Apply to material
+                sprite.material.color.setScalar(colorValue);
+                sprite.material.opacity = opacity;
+                sprite.material.transparent = true;
+            });
+            
+            // Atmospheric perspective for stars: distance-based color and opacity fading
+            starGroups.forEach(starGroup => {
+                const star = starGroup.children[0]; // Get the mesh from the group
+                if (star && star.material) {
+                    const dist = camera.position.distanceTo(starGroup.position);
+                    
+                    // Define fade range (adjusted for world scale)
+                    const NEAR = 2;
+                    const FAR = 15;
+                    
+                    // Use clamp for debugging visibility
+                    const t = THREE.MathUtils.clamp(
+                        (dist - NEAR) / (FAR - NEAR),
+                        0,
+                        1
+                    );
+                    
+                    console.log('[star fade] dist:', dist.toFixed(2), 't:', t.toFixed(2));
+                    
+                    // Define colors (fresh instances each frame)
+                    const nearColor = new THREE.Color(0xFF6600);  // Orange
+                    const farColor = new THREE.Color(0x777777);   // Gray
+                    
+                    // Interpolate color from near to far
+                    star.material.color.copy(nearColor).lerp(farColor, t);
+                    
+                    // Opacity fade: 1.0 -> 0.3
+                    star.material.opacity = THREE.MathUtils.lerp(1.0, 0.3, t);
+                }
             });
             
             renderer.render(scene, camera);
