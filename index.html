@@ -1109,12 +1109,48 @@
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
             let hoveredSprite = null;
+            let hoveredStar = null;
 
             renderer.domElement.addEventListener('mousemove', (event) => {
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
                 raycaster.setFromCamera(mouse, camera);
+                
+                // Check for star intersections first
+                const visibleStars = starGroups.filter(sg => sg.visible).map(sg => sg.children[0]); // Get the mesh from each group
+                const starIntersects = raycaster.intersectObjects(visibleStars, false);
+                
+                // Reset previous hover states
+                if (hoveredStar && starIntersects.length === 0) {
+                    // Find the sprite linked to this star
+                    const linkedSprite = allSentenceSprites.find(s => s.userData.linkedStarGroup && s.userData.linkedStarGroup.children[0] === hoveredStar);
+                    if (linkedSprite) {
+                        linkedSprite.material.map = linkedSprite.userData.originalTexture;
+                        linkedSprite.material.depthTest = true;
+                        linkedSprite.material.needsUpdate = true;
+                        linkedSprite.renderOrder = 0;
+                    }
+                    hoveredStar.material.color.setHex(0xFF6600);
+                    hoveredStar = null;
+                }
+                
+                // Handle star hover
+                if (starIntersects.length > 0 && !hoveredStar) {
+                    hoveredStar = starIntersects[0].object; // The mesh inside the group
+                    hoveredStar.material.color.setHex(0xFF9933); // Lighter orange on hover
+                    
+                    // Find and highlight the linked sprite
+                    const linkedSprite = allSentenceSprites.find(s => s.userData.linkedStarGroup && s.userData.linkedStarGroup.children[0] === hoveredStar);
+                    if (linkedSprite) {
+                        const hoverTexture = createHoverTexture(linkedSprite.userData.lines, linkedSprite.userData.text, linkedSprite.userData.keywords);
+                        linkedSprite.material.map = hoverTexture;
+                        linkedSprite.material.depthTest = false;
+                        linkedSprite.material.needsUpdate = true;
+                        linkedSprite.renderOrder = 999;
+                    }
+                    return; // Don't process sprite hover if star is hovered
+                }
                 
                 // Only check visible sprites for intersection
                 const visibleSprites = sentenceSprites.filter(s => s.visible);
@@ -1175,6 +1211,10 @@
                     hoveredSprite.material.needsUpdate = true;
                     hoveredSprite.renderOrder = 0;
                     hoveredSprite = null;
+                }
+                if (hoveredStar) {
+                    hoveredStar.material.color.setHex(0xFF6600);
+                    hoveredStar = null;
                 }
             });
             
