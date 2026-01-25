@@ -1079,6 +1079,9 @@
                         const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFF6600, side: THREE.DoubleSide });
                         const star = new THREE.Mesh(starGeometry, starMaterial);
                         
+                        // Link the star mesh directly to the sprite for easy lookup during raycasting
+                        star.userData.linkedSprite = sprite;
+                        
                         // Create a group that will make the star face the camera
                         const starGroup = new THREE.Group();
                         starGroup.add(star);
@@ -1117,32 +1120,38 @@
 
                 raycaster.setFromCamera(mouse, camera);
                 
-                // Check for star intersections first
-                const visibleStars = starGroups.filter(sg => sg.visible).map(sg => sg.children[0]); // Get the mesh from each group
-                const starIntersects = raycaster.intersectObjects(visibleStars, false);
+                // Check for star intersections - get all star meshes from visible star groups
+                const visibleStarMeshes = [];
+                starGroups.forEach(sg => {
+                    if (sg.visible && sg.children.length > 0) {
+                        visibleStarMeshes.push(sg.children[0]); // The star mesh
+                    }
+                });
                 
-                // Reset previous hover states
+                const starIntersects = raycaster.intersectObjects(visibleStarMeshes, false);
+                
+                // Reset previous star hover
                 if (hoveredStar && starIntersects.length === 0) {
-                    // Find the sprite linked to this star
-                    const linkedSprite = allSentenceSprites.find(s => s.userData.linkedStarGroup && s.userData.linkedStarGroup.children[0] === hoveredStar);
-                    if (linkedSprite) {
+                    hoveredStar.material.color.setHex(0xFF6600);
+                    // Reset the linked sprite
+                    const linkedSprite = hoveredStar.userData.linkedSprite;
+                    if (linkedSprite && linkedSprite.userData.isSentence) {
                         linkedSprite.material.map = linkedSprite.userData.originalTexture;
                         linkedSprite.material.depthTest = true;
                         linkedSprite.material.needsUpdate = true;
                         linkedSprite.renderOrder = 0;
                     }
-                    hoveredStar.material.color.setHex(0xFF6600);
                     hoveredStar = null;
                 }
                 
                 // Handle star hover
                 if (starIntersects.length > 0 && !hoveredStar) {
-                    hoveredStar = starIntersects[0].object; // The mesh inside the group
+                    hoveredStar = starIntersects[0].object;
                     hoveredStar.material.color.setHex(0xFF9933); // Lighter orange on hover
                     
-                    // Find and highlight the linked sprite
-                    const linkedSprite = allSentenceSprites.find(s => s.userData.linkedStarGroup && s.userData.linkedStarGroup.children[0] === hoveredStar);
-                    if (linkedSprite) {
+                    // Get the linked sprite and highlight it
+                    const linkedSprite = hoveredStar.userData.linkedSprite;
+                    if (linkedSprite && linkedSprite.userData.isSentence) {
                         const hoverTexture = createHoverTexture(linkedSprite.userData.lines, linkedSprite.userData.text, linkedSprite.userData.keywords);
                         linkedSprite.material.map = hoverTexture;
                         linkedSprite.material.depthTest = false;
