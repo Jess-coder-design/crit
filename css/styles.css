@@ -343,8 +343,8 @@ body {
    ============================================ */
 .submissions-container {
     position: fixed;
-    bottom: 44px;
-    left: 34px;
+    bottom: 8px;
+    left: 120px;
     right: auto;
     display: flex;
     align-items: center;
@@ -366,7 +366,8 @@ body {
     transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 1001;
     position: relative;
-    text-align: left;
+    text-align: center;
+    white-space: nowrap;
 }
 
 #submissionsToggle:hover {
