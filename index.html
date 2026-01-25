@@ -148,6 +148,10 @@
                         // Show all sprites if no filter active
                         allSentenceSprites.forEach(sprite => {
                             sprite.visible = true;
+                            // Also show linked star if present
+                            if (sprite.userData.linkedStarGroup) {
+                                sprite.userData.linkedStarGroup.visible = true;
+                            }
                         });
                         // Show all submission items
                         submissionsPanel.querySelectorAll('.submission-item').forEach(item => {
@@ -169,6 +173,10 @@
                                 });
                             });
                             sprite.visible = hasAllKeywords;
+                            // Also update linked star visibility
+                            if (sprite.userData.linkedStarGroup) {
+                                sprite.userData.linkedStarGroup.visible = hasAllKeywords;
+                            }
                         });
                         
                         // Also filter submission items to match keyword filters
@@ -224,6 +232,10 @@
                     // Show all sprites
                     allSentenceSprites.forEach(sprite => {
                         sprite.visible = true;
+                        // Also show linked star if present
+                        if (sprite.userData.linkedStarGroup) {
+                            sprite.userData.linkedStarGroup.visible = true;
+                        }
                     });
                     // Remove active styling from all keywords
                     panel.querySelectorAll('.keyword').forEach(el => {
@@ -241,6 +253,10 @@
                 // Show all sprites
                 allSentenceSprites.forEach(sprite => {
                     sprite.visible = true;
+                    // Also show linked star if present
+                    if (sprite.userData.linkedStarGroup) {
+                        sprite.userData.linkedStarGroup.visible = true;
+                    }
                 });
                 // Remove active styling from all keywords
                 panel.querySelectorAll('.keyword').forEach(el => {
@@ -1067,6 +1083,9 @@
                         starGroup.add(star);
                         starGroup.position.copy(position);
                         
+                        // Link the star group to the sprite for synchronized visibility
+                        sprite.userData.linkedStarGroup = starGroup;
+                        
                         scene.add(starGroup);
                         starGroups.push(starGroup);  // Track for camera-facing updates
                         
@@ -1201,6 +1220,10 @@
                     // Show all sprites
                     sentenceSprites.forEach(sprite => {
                         sprite.visible = true;
+                        // Also show linked star if present
+                        if (sprite.userData.linkedStarGroup) {
+                            sprite.userData.linkedStarGroup.visible = true;
+                        }
                     });
                     // Remove active styling from keywords
                     const keywordPanel = document.getElementById('keywordPanel');

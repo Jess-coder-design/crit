@@ -710,14 +710,14 @@
   {
     "url": "https://www.designacademy.nl/page/408/critical-inquiry-lab",
     "sentence": "Applications are welcome from individuals with a background in design, art and architecture, while we also encourage curious bodyminds from other fields who are eager to experiment in speculative world-making released from doom, informed by hopeful flourishing.",
-    "x": 1,
-    "y": 6,
+    "x": null,
+    "y": 0,
     "z": null,
     "date": null,
-    "_dominant_critical_practice": "speculative",
-    "_critical_axis_position": 1,
-    "_dominant_design_practice": "experiment",
-    "_design_axis_position": 6
+    "_dominant_critical_practice": null,
+    "_critical_axis_position": null,
+    "_dominant_design_practice": "design",
+    "_design_axis_position": 0
   },
   {
     "url": "https://www.designacademy.nl/page/408/critical-inquiry-lab",
