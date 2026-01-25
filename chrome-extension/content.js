@@ -594,16 +594,32 @@ function highlightDesigners() {
           const escapedDesigner = designer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           const regex = new RegExp(`\\b(${escapedDesigner})\\b`, 'gi');
           
-          if (url) {
-            // Has URL, make it clickable
-            html = html.replace(regex, `<a href="${url}" target="_blank" style="color: #000; text-decoration: underline; cursor: pointer;" data-designer="${designer}">$1</a>`);
-          } else {
-            // No URL, just highlight in black
-            html = html.replace(regex, `<span style="color: #000; font-weight: bold;" data-designer="${designer}">$1</span>`);
-          }
+          // Highlight with black background and white text
+          html = html.replace(regex, `<span style="color: #fff; font-weight: bold; background-color: #000; padding: 2px 4px; border-radius: 2px; cursor: pointer;" data-designer="${designer}" data-designer-url="${url || ''}">$1</span>`);
         }
         
         span.innerHTML = html;
+        
+        // Add click handlers to designer spans
+        const designerSpans = span.querySelectorAll('[data-designer]');
+        designerSpans.forEach(designerSpan => {
+          const url = designerSpan.getAttribute('data-designer-url');
+          if (url) {
+            designerSpan.style.cursor = 'pointer';
+            designerSpan.addEventListener('click', (e) => {
+              e.stopPropagation();
+              window.open(url, '_blank');
+            });
+            // Add hover effect
+            designerSpan.addEventListener('mouseenter', () => {
+              designerSpan.style.opacity = '0.7';
+            });
+            designerSpan.addEventListener('mouseleave', () => {
+              designerSpan.style.opacity = '1';
+            });
+          }
+        });
+        
         node.parentNode.replaceChild(span, node);
       });
       
