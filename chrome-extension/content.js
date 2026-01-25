@@ -203,6 +203,15 @@ async function processAndSavePage(currentUrl) {
       return false;
     }
     
+    // Check for a year (4-digit number)
+    const yearRegex = /\b(19|20)\d{2}\b/;
+    const yearMatch = pageText.match(yearRegex);
+    if (!yearMatch) {
+      console.log('Page missing year information');
+      return false;
+    }
+    const year = yearMatch[0];
+    
     // Extract sentence
     let sentence = '';
     const metaDescription = document.querySelector('meta[name="description"]');
