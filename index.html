@@ -1369,14 +1369,12 @@
                     const NEAR = 2;
                     const FAR = 15;
                     
-                    // Use clamp for debugging visibility
+                    // Use clamp for interpolation
                     const t = THREE.MathUtils.clamp(
                         (dist - NEAR) / (FAR - NEAR),
                         0,
                         1
                     );
-                    
-                    console.log('[star fade] dist:', dist.toFixed(2), 't:', t.toFixed(2));
                     
                     // Define colors (fresh instances each frame)
                     const nearColor = new THREE.Color(0xFF6600);  // Orange
